@@ -13,5 +13,5 @@
     "module": "commonjs",
     "baseUrl": "."
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "src/**/*.json"]
 }
