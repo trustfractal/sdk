@@ -1,6 +1,0 @@
-#!/bin/sh
-
-source ./bin/functions
-
-pp_info "demo" "starting development server..."
-yarn dev

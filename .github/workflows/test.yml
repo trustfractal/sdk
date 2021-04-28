@@ -1,4 +1,4 @@
-name: Test SDK
+name: Test
 
 on:
   push:
@@ -13,10 +13,6 @@ jobs:
   test-plugin:
     runs-on: ubuntu-latest
     container: node:14.16.0
-
-    defaults:
-      run:
-        working-directory: sdk
 
     env:
       FORCE_COLOR: true
