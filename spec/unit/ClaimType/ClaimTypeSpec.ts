@@ -33,3 +33,39 @@ describe(".fromSchema", () => {
     expect(claimSchema.$id).toBeDefined();
   });
 });
+
+describe(".build", () => {
+  it("builds a pre-defined claim type", () => {
+    const {
+      schema: { title, properties },
+    } = ClaimType.build("basic");
+
+    expect(title).toEqual("basic");
+    expect(properties).toEqual(ClaimType.BasicSchema);
+  });
+
+  it("allows composable claim types", () => {
+    const {
+      schema: { title, properties },
+    } = ClaimType.build("basic+liveness");
+
+    expect(title).toEqual("basic+liveness");
+    expect(properties).toEqual({
+      ...ClaimType.BasicSchema,
+      ...ClaimType.LivenessSchema,
+    });
+  });
+
+  it("composes claim types regardless of the order", () => {
+    const {
+      schema: { title: title1, properties: properties1 },
+    } = ClaimType.build("basic+liveness");
+
+    const {
+      schema: { title: title2, properties: properties2 },
+    } = ClaimType.build("liveness+basic");
+
+    expect(title1).toEqual(title2);
+    expect(properties1).toEqual(properties2);
+  });
+});
