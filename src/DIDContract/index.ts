@@ -1,8 +1,7 @@
 import { Contract, providers, utils as ethersUtils } from "ethers";
 
 import Credential from "../Credential";
-
-import ContractData from "./Contract.json";
+import ContractData from "./Contract.js";
 
 export default class DIDContract {
   public static ABI = ContractData.abi;
