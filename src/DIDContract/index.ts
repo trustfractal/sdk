@@ -28,10 +28,12 @@ export default class DIDContract {
     if (!provider && !providerUrl)
       throw new Error("Missing either provider or provider URL");
 
-    provider = provider || new providers.JsonRpcProvider(providerUrl);
+    const rpcProvider =
+      provider ||
+      (new providers.JsonRpcProvider(providerUrl) as providers.Provider);
 
     this.address = address;
-    this.contract = new Contract(address, DIDContract.ABI, provider);
+    this.contract = new Contract(address, DIDContract.ABI, rpcProvider);
   }
 
   public computeSignableKey({ claimerAddress, rootHash }: Credential) {
