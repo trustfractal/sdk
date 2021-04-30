@@ -15,6 +15,17 @@ export default class Claim implements IClaim {
 
     this.claimTypeHash = claimType.hash;
     this.owner = owner;
-    this.properties = properties;
+    this.properties = Claim.pruneProperties(properties, claimType);
+  }
+
+  private static pruneProperties(
+    properties: Record<string, any>,
+    { schema: { properties: schemaProperties } }: IClaimType
+  ) {
+    const allowedKeys = Object.keys(schemaProperties);
+
+    return Object.entries(properties)
+      .filter(([key, _]) => allowedKeys.includes(key))
+      .reduce((memo, [key, value]) => ({ ...memo, [key]: value }), {});
   }
 }

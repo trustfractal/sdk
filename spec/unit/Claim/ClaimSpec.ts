@@ -53,4 +53,20 @@ describe("constructor", () => {
     expect(result).toBeInstanceOf(Claim);
     expect(result.claimTypeHash).toEqual(claimType.hash);
   });
+
+  fit("ignores keys not present on the claim type", () => {
+    const pseudoSchema = ClaimType.buildSchema("Foo", {
+      name: { type: "string" },
+      age: { type: "number" },
+    });
+
+    const claimType = ClaimType.fromSchema(pseudoSchema);
+    const owner = "0x0";
+    const properties = { name: "Foo", age: 20, address: "Home" };
+
+    const result = new Claim(claimType, properties, owner);
+    expect(result).toBeInstanceOf(Claim);
+    expect(result.properties.address).not.toBeDefined();
+    expect(result.properties).toEqual({ name: "Foo", age: 20 });
+  });
 });
