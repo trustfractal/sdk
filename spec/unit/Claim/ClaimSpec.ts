@@ -54,7 +54,7 @@ describe("constructor", () => {
     expect(result.claimTypeHash).toEqual(claimType.hash);
   });
 
-  fit("ignores keys not present on the claim type", () => {
+  it("ignores keys not present on the claim type", () => {
     const pseudoSchema = ClaimType.buildSchema("Foo", {
       name: { type: "string" },
       age: { type: "number" },
