@@ -10,6 +10,10 @@ export default class DIDContract {
     ropsten: "0x181573a13F4BF5F76F6d09D0E2a7716F6929993A",
   };
 
+  public static toBuffer(str: string) {
+    return ethersUtils.arrayify(str);
+  }
+
   public address: string;
   public contract: Contract;
 
@@ -57,7 +61,7 @@ export default class DIDContract {
     rootHash,
     credentialSignature,
   }: Credential) {
-    const rootHashArray = ethersUtils.arrayify(rootHash);
+    const rootHashArray = DIDContract.toBuffer(rootHash);
 
     return this.contract.setClaimWithSignature(
       claimerAddress,
