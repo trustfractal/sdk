@@ -2,8 +2,7 @@ import type { IClaimPseudoSchema, IClaimType } from "../types";
 
 import Crypto from "../Crypto";
 
-// TODO: what to do about schema versioning?
-const DEFAULT_SCHEMA_VERSION = "http://kilt-protocol.org/draft-01/ctype#";
+const DEFAULT_SCHEMA_VERSION = "https://json-schema.org/draft/2020-12/schema";
 
 export default class ClaimType implements IClaimType {
   public static LivenessSchema = {
