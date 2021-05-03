@@ -1,5 +1,5 @@
 export const ClaimTypeMetaschema = {
-  $id: "http://json-schema.org/draft-07/schema#",
+  $id: "https://json-schema.org/draft/2020-12/schema",
   $schema: "http://json-schema.org/draft-07/schema#",
   type: "object",
   properties: {
@@ -11,7 +11,7 @@ export const ClaimTypeMetaschema = {
     $schema: {
       type: "string",
       format: "uri",
-      const: "http://json-schema.org/draft-07/schema#",
+      const: "https://json-schema.org/draft/2020-12/schema",
     },
     title: {
       type: "string",
