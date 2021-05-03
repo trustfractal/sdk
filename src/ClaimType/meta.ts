@@ -1,5 +1,5 @@
 export const ClaimTypeMetaschema = {
-  $id: "http://kilt-protocol.org/draft-01/ctype#",
+  $id: "http://json-schema.org/draft-07/schema#",
   $schema: "http://json-schema.org/draft-07/schema#",
   type: "object",
   properties: {
@@ -11,7 +11,7 @@ export const ClaimTypeMetaschema = {
     $schema: {
       type: "string",
       format: "uri",
-      const: "http://kilt-protocol.org/draft-01/ctype#",
+      const: "http://json-schema.org/draft-07/schema#",
     },
     title: {
       type: "string",

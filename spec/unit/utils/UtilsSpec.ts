@@ -1,6 +1,9 @@
 import "jasmine";
-import { jsonabc } from "@kiltprotocol/utils";
-import { deepSortObject, deepSortArray, normaliseObject } from "../../../src/utils";
+import {
+  deepSortObject,
+  deepSortArray,
+  normaliseObject,
+} from "../../../src/utils";
 
 describe("deepSortObject", () => {
   it("sorts equivalent objects", () => {
@@ -30,20 +33,6 @@ describe("deepSortObject", () => {
 
     const str = JSON.stringify(sorted);
     expect(str).toEqual(output);
-  });
-
-  it("equals KILT sorting", () => {
-    const input = {
-      last: [{ b: 2, a: 1 }, 1, "z"],
-      first: { z: 9, a: 1 },
-    };
-
-    const ourVersion = deepSortObject(input);
-    const kiltVersion = jsonabc.sortObj(input);
-
-    const str1 = JSON.stringify(ourVersion);
-    const str2 = JSON.stringify(kiltVersion);
-    expect(str1).toEqual(str2);
   });
 });
 
@@ -83,24 +72,6 @@ describe("deepSortArray", () => {
 
     const str = JSON.stringify(sorted);
     expect(str).toEqual(output);
-  });
-
-  it("equals KILT sorting", () => {
-    const input = [
-      "10",
-      10,
-      9,
-      "a",
-      { last: { b: 2, a: 1 }, first: [3, 2, 1] },
-      ["a", "c", "b"],
-    ];
-
-    const ourVersion = deepSortArray(input);
-    const kiltVersion = jsonabc.sortObj(input);
-
-    const str1 = JSON.stringify(ourVersion);
-    const str2 = JSON.stringify(kiltVersion);
-    expect(str1).toEqual(str2);
   });
 });
 
