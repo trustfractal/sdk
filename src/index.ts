@@ -1,7 +1,7 @@
 import AttestationRequest from "./AttestationRequest";
 import Claim from "./Claim";
 import ClaimType from "./ClaimType";
-import Credential from "./Credential";
+import AttestedClaim from "./AttestedClaim";
 import Crypto from "./Crypto";
 import DIDContract from "./DIDContract";
 import FractalError from "./FractalError";
@@ -18,7 +18,7 @@ import {
   IClaimPseudoSchema,
   IClaimSchema,
   IClaimType,
-  ICredential,
+  IAttestedClaim,
   Property,
   Signature,
 } from "./types";
@@ -28,7 +28,7 @@ export {
   AttestationRequest,
   Claim,
   ClaimType,
-  Credential,
+  AttestedClaim,
   Crypto,
   DIDContract,
   FractalError,
@@ -41,7 +41,7 @@ export {
   IClaimPseudoSchema,
   IClaimSchema,
   IClaimType,
-  ICredential,
+  IAttestedClaim,
   Property,
   Signature,
   Utils,

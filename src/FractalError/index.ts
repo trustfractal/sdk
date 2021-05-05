@@ -1,4 +1,4 @@
-import { IAttestationRequest, ICredential } from "../types";
+import { IAttestationRequest, IAttestedClaim } from "../types";
 
 export default class FractalError extends Error {
   constructor(message: string) {
@@ -27,17 +27,17 @@ export default class FractalError extends Error {
     );
   }
 
-  public static credentialFromUnsignedRequest(request: IAttestationRequest) {
+  public static attestedClaimFromUnsignedRequest(request: IAttestationRequest) {
     return new FractalError(
-      `Cannot generate a credential from an unsigned request: ${JSON.stringify(
+      `Cannot generate a attestedClaim from an unsigned request: ${JSON.stringify(
         request
       )}`
     );
   }
 
-  public static credentialFromInvalidRequest(request: IAttestationRequest) {
+  public static attestedClaimFromInvalidRequest(request: IAttestationRequest) {
     return new FractalError(
-      `Cannot generate a credential from an invalid request: ${JSON.stringify(
+      `Cannot generate a attestedClaim from an invalid request: ${JSON.stringify(
         request
       )}`
     );
