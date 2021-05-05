@@ -5,7 +5,7 @@ import DIDContract from "../DIDContract";
 
 import {
   IClaim,
-  ICredential,
+  IAttestedClaim,
   Hash,
   Address,
   Signature,
@@ -13,21 +13,21 @@ import {
   HashTree,
 } from "../types";
 
-export default class Credential implements ICredential {
+export default class AttestedClaim implements IAttestedClaim {
   public static fromRequest(request: AttestationRequest) {
     if (!request.claimerSignature || !request.claim.owner)
-      throw FractalError.credentialFromUnsignedRequest(request);
+      throw FractalError.attestedClaimFromUnsignedRequest(request);
 
     if (!request.validate())
-      throw FractalError.credentialFromInvalidRequest(request);
+      throw FractalError.attestedClaimFromInvalidRequest(request);
 
-    return new Credential({
+    return new AttestedClaim({
       claim: request.claim,
       rootHash: request.rootHash,
       attesterAddress: null,
       attesterSignature: null,
-      credentialHash: null,
-      credentialSignature: null,
+      attestedClaimHash: null,
+      attestedClaimSignature: null,
       claimerAddress: request.claim.owner,
       claimerSignature: request.claimerSignature,
       claimTypeHash: request.claimTypeHash,
@@ -39,8 +39,8 @@ export default class Credential implements ICredential {
   public rootHash: Hash;
   public attesterAddress: Address | null;
   public attesterSignature: Signature | null;
-  public credentialHash: Hash | null;
-  public credentialSignature: Signature | null;
+  public attestedClaimHash: Hash | null;
+  public attestedClaimSignature: Signature | null;
   public claimerAddress: Address;
   public claimerSignature: Signature;
   public claimTypeHash: HashWithNonce;
@@ -51,19 +51,19 @@ export default class Credential implements ICredential {
     rootHash,
     attesterAddress,
     attesterSignature,
-    credentialHash,
-    credentialSignature,
+    attestedClaimHash,
+    attestedClaimSignature,
     claimerAddress,
     claimerSignature,
     claimTypeHash,
     claimHashTree,
-  }: ICredential) {
+  }: IAttestedClaim) {
     this.claim = claim;
     this.rootHash = rootHash;
     this.attesterAddress = attesterAddress;
     this.attesterSignature = attesterSignature;
-    this.credentialHash = credentialHash;
-    this.credentialSignature = credentialSignature;
+    this.attestedClaimHash = attestedClaimHash;
+    this.attestedClaimSignature = attestedClaimSignature;
     this.claimerAddress = claimerAddress;
     this.claimerSignature = claimerSignature;
     this.claimTypeHash = claimTypeHash;
@@ -94,8 +94,8 @@ export default class Credential implements ICredential {
   // and the attested hash matches the one from the contract
   public async verifyNetwork(contract: DIDContract): Promise<boolean> {
     return (
-      this.verifyCredentialHashIntegrity() &&
-      this.verifyCredentialHash(contract) &&
+      this.verifyAttestedClaimHashIntegrity() &&
+      this.verifyAttestedClaimHash(contract) &&
       this.verifyStorage(contract)
     );
   }
@@ -146,25 +146,25 @@ export default class Credential implements ICredential {
     );
   }
 
-  public verifyCredentialHashIntegrity() {
+  public verifyAttestedClaimHashIntegrity() {
     if (
-      !this.credentialSignature ||
-      !this.credentialHash ||
+      !this.attestedClaimSignature ||
+      !this.attestedClaimHash ||
       !this.attesterAddress
     )
       return false;
 
     return Crypto.verifySignature(
-      this.credentialSignature,
-      this.credentialHash,
+      this.attestedClaimSignature,
+      this.attestedClaimHash,
       this.attesterAddress
     );
   }
 
-  private async verifyCredentialHash(contract: DIDContract) {
+  private async verifyAttestedClaimHash(contract: DIDContract) {
     const expectedHash = await contract.computeSignableKey(this);
 
-    return expectedHash === this.credentialHash;
+    return expectedHash === this.attestedClaimHash;
   }
 
   private async verifyStorage(contract: DIDContract) {

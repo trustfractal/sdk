@@ -4,10 +4,10 @@ import { Wallet } from "ethers";
 import AttestationRequest from "../../src/AttestationRequest";
 import Claim from "../../src/Claim";
 import ClaimType from "../../src/ClaimType";
-import Credential from "../../src/Credential";
+import AttestedClaim from "../../src/AttestedClaim";
 
-describe("attesting a credential", () => {
-  it("results in a verifiable Credential object", async () => {
+describe("attesting a attestedClaim", () => {
+  it("results in a verifiable AttestedClaim object", async () => {
     // Create the necessary ethereum accounts
     const claimerWallet = Wallet.createRandom();
     const attesterWallet = Wallet.createRandom();
@@ -39,24 +39,24 @@ describe("attesting a credential", () => {
     expect(request.rootHash).toBeDefined();
     expect(request.validate()).toBeTrue();
 
-    // As an attester generate a credential
-    const credential = Credential.fromRequest(request);
+    // As an attester generate a attestedClaim
+    const attestedClaim = AttestedClaim.fromRequest(request);
     const attesterSignature = await attesterWallet.signMessage(
-      credential.rootHash
+      attestedClaim.rootHash
     );
 
-    credential.attesterAddress = attesterWallet.address;
-    credential.attesterSignature = attesterSignature;
+    attestedClaim.attesterAddress = attesterWallet.address;
+    attestedClaim.attesterSignature = attesterSignature;
 
-    expect(credential.verifyIntegrity()).toBeTrue();
+    expect(attestedClaim.verifyIntegrity()).toBeTrue();
 
-    // As the user, remove the property from the credential
-    credential.removeProperty("name");
+    // As the user, remove the property from the attestedClaim
+    attestedClaim.removeProperty("name");
 
-    expect(credential.getProperty("age")).toBeDefined();
-    expect(credential.getProperty("name")).not.toBeDefined();
+    expect(attestedClaim.getProperty("age")).toBeDefined();
+    expect(attestedClaim.getProperty("name")).not.toBeDefined();
 
     // As the publisher, ensure the integrity of data
-    expect(credential.verifyIntegrity()).toBeTrue();
+    expect(attestedClaim.verifyIntegrity()).toBeTrue();
   });
 });

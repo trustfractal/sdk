@@ -1,6 +1,6 @@
 import "jasmine";
 
-import Credential from "../../../src/Credential";
+import AttestedClaim from "../../../src/AttestedClaim";
 
 describe("removeProperty", () => {
   it("deletes the property and the corresponding nonce", () => {
@@ -18,12 +18,12 @@ describe("removeProperty", () => {
       properties: { age: 20, name: "Foo" },
     };
 
-    const credential = new Credential({
+    const attestedClaim = new AttestedClaim({
       rootHash: "0x0",
       attesterAddress: null,
       attesterSignature: null,
-      credentialHash: null,
-      credentialSignature: null,
+      attestedClaimHash: null,
+      attestedClaimSignature: null,
       claimerSignature: "0x0",
       claimerAddress,
       claimTypeHash,
@@ -31,10 +31,10 @@ describe("removeProperty", () => {
       claim,
     });
 
-    credential.removeProperty("age");
+    attestedClaim.removeProperty("age");
 
-    expect(credential.claim.properties).toEqual({ name: "Foo" });
-    expect(credential.claimHashTree).toEqual({
+    expect(attestedClaim.claim.properties).toEqual({ name: "Foo" });
+    expect(attestedClaim.claimHashTree).toEqual({
       name: { hash: "0x3", nonce: "0x4" },
       age: { hash: "0x1" },
     });
