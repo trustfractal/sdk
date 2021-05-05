@@ -27,8 +27,33 @@ export const ClaimTypeMetaschema = {
           type: "object",
           properties: {
             type: {
-              type: "string",
-              enum: ["string", "integer", "number", "boolean", "object"],
+              oneOf: [
+                {
+                  type: "string",
+                  enum: [
+                    "string",
+                    "integer",
+                    "number",
+                    "boolean",
+                    "object",
+                    "null",
+                  ],
+                },
+                {
+                  type: "array",
+                  items: {
+                    type: "string",
+                    enum: [
+                      "string",
+                      "integer",
+                      "number",
+                      "boolean",
+                      "object",
+                      "null",
+                    ],
+                  },
+                },
+              ],
             },
             $ref: {
               type: "string",

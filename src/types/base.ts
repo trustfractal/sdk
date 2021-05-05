@@ -1,4 +1,4 @@
-export type Property = number | string | boolean;
+export type Property = number | string | boolean | null;
 
 export type Address = string;
 

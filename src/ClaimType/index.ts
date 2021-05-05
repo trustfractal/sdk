@@ -19,7 +19,7 @@ export default class ClaimType implements IClaimType {
   };
 
   public static PlusSchema = {
-    place_of_birth: { type: "string" },
+    place_of_birth: { type: ["string", "null"] },
     residential_address: { type: "string" },
     residential_address_country: { type: "string" },
     date_of_birth: { type: "string" },
