@@ -1,6 +1,7 @@
 const Contract = {
   _format: "hh-sol-artifact-1",
   contractName: "ClaimsRegistry",
+  sourceName: "contracts/ClaimsRegistry.sol",
   abi: [
     {
       anonymous: false,
@@ -56,7 +57,7 @@ const Contract = {
       inputs: [
         {
           internalType: "address",
-          name: "issuer",
+          name: "attester",
           type: "address",
         },
         {
@@ -85,31 +86,7 @@ const Contract = {
         },
         {
           internalType: "bytes",
-          name: "_sig",
-          type: "bytes",
-        },
-      ],
-      name: "recover",
-      outputs: [
-        {
-          internalType: "address",
-          name: "",
-          type: "address",
-        },
-      ],
-      stateMutability: "pure",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "bytes32",
-          name: "hash",
-          type: "bytes32",
-        },
-        {
-          internalType: "bytes",
-          name: "_sig",
+          name: "sig",
           type: "bytes",
         },
       ],
@@ -170,7 +147,7 @@ const Contract = {
         },
         {
           internalType: "address",
-          name: "issuer",
+          name: "attester",
           type: "address",
         },
         {
@@ -192,42 +169,13 @@ const Contract = {
     {
       inputs: [
         {
-          internalType: "bytes32",
-          name: "hash",
-          type: "bytes32",
-        },
-        {
-          internalType: "bytes",
-          name: "sig",
-          type: "bytes",
-        },
-        {
-          internalType: "address",
-          name: "signer",
-          type: "address",
-        },
-      ],
-      name: "verify",
-      outputs: [
-        {
-          internalType: "bool",
-          name: "",
-          type: "bool",
-        },
-      ],
-      stateMutability: "pure",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
           internalType: "address",
           name: "subject",
           type: "address",
         },
         {
           internalType: "address",
-          name: "issuer",
+          name: "attester",
           type: "address",
         },
         {
@@ -278,5 +226,4 @@ const Contract = {
     },
   ],
 };
-
 export default Contract;
