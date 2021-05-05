@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./build",
-    "lib": ["es2015"],
+    "lib": ["es2017"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
