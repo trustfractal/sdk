@@ -156,7 +156,7 @@ export default class AttestedClaim implements IAttestedClaim {
 
     return Crypto.verifySignature(
       this.attestedClaimSignature,
-      this.attestedClaimHash,
+      DIDContract.toBuffer(this.attestedClaimHash),
       this.attesterAddress
     );
   }

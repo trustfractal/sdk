@@ -114,7 +114,7 @@ const verifyHashWithNonce = (
 
 const verifySignature = (
   signature: Signature,
-  message: string,
+  message: string | Uint8Array,
   expectedSigner: Address
 ) => ethersUtils.verifyMessage(message, signature) === expectedSigner;
 
