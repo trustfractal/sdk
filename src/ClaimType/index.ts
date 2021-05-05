@@ -18,6 +18,22 @@ export default class ClaimType implements IClaimType {
     identification_document_type: { type: "string" },
   };
 
+  public static PlusSchema = {
+    place_of_birth: { type: "string" },
+    residential_address: { type: "string" },
+    residential_address_country: { type: "string" },
+    date_of_birth: { type: "string" },
+    full_name: { type: "string" },
+    identification_document_country: { type: "string" },
+    identification_document_number: { type: "string" },
+    identification_document_type: { type: "string" },
+  };
+
+  public static WalletSchema = {
+    wallet_address: { type: "string" },
+    wallet_currency: { type: "string" },
+  };
+
   public hash: IClaimType["hash"];
   public owner: IClaimType["owner"];
   public schema: IClaimType["schema"];
@@ -66,6 +82,10 @@ export default class ClaimType implements IClaimType {
           return { ...memo, ...ClaimType.LivenessSchema };
         case "basic":
           return { ...memo, ...ClaimType.BasicSchema };
+        case "plus":
+          return { ...memo, ...ClaimType.PlusSchema };
+        case "wallet":
+          return { ...memo, ...ClaimType.WalletSchema };
         default:
           return memo;
       }
