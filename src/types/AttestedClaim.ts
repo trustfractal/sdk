@@ -1,11 +1,11 @@
 import { Address, Hash, Signature, HashWithNonce, HashTree } from "./base";
 import { IClaim } from "./Claim";
 
-export interface ICredential {
+export interface IAttestedClaim {
   claim: IClaim;
   rootHash: Hash;
-  credentialHash: Hash | null;
-  credentialSignature: Address | null;
+  attestedClaimHash: Hash | null;
+  attestedClaimSignature: Address | null;
   attesterAddress: Address | null;
   attesterSignature: Signature | null;
   claimerAddress: Address;

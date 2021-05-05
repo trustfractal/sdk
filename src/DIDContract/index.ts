@@ -1,6 +1,6 @@
 import { Contract, providers, utils as ethersUtils } from "ethers";
 
-import Credential from "../Credential";
+import AttestedClaim from "../AttestedClaim";
 import ContractData from "./Contract.js";
 
 export default class DIDContract {
@@ -39,19 +39,19 @@ export default class DIDContract {
     this.contract = new Contract(address, DIDContract.ABI, rpcProvider);
   }
 
-  public computeSignableKey({ claimerAddress, rootHash }: Credential) {
+  public computeSignableKey({ claimerAddress, rootHash }: AttestedClaim) {
     return this.contract.computeSignableKey(claimerAddress, rootHash);
   }
 
   public verifyClaim({
     claimerAddress,
     attesterAddress,
-    credentialSignature,
-  }: Credential) {
+    attestedClaimSignature,
+  }: AttestedClaim) {
     return this.contract.verifyClaim(
       claimerAddress,
       attesterAddress,
-      credentialSignature
+      attestedClaimSignature
     );
   }
 
@@ -59,15 +59,15 @@ export default class DIDContract {
     claimerAddress,
     attesterAddress,
     rootHash,
-    credentialSignature,
-  }: Credential) {
+    attestedClaimSignature,
+  }: AttestedClaim) {
     const rootHashArray = DIDContract.toBuffer(rootHash);
 
     return this.contract.setClaimWithSignature(
       claimerAddress,
       attesterAddress,
       rootHashArray,
-      credentialSignature
+      attestedClaimSignature
     );
   }
 }
