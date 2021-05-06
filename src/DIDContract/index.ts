@@ -8,6 +8,7 @@ export default class DIDContract {
 
   public static CONTRACT_ADDRESSES: Record<string, string> = {
     ropsten: "0x181573a13F4BF5F76F6d09D0E2a7716F6929993A",
+    mainnet: "0x1A5FA65E50d503a29Ec57cD102f2e7970a6963BB",
   };
 
   public static toBuffer(str: string) {
