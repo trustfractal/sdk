@@ -1,5 +1,7 @@
 # Fractal DID SDK
 
+![][npm-shield]
+
 This is the SDK for creating, attesting and revoking claims using the [Fractal
 Wallet][fractal-wallet].
 
@@ -14,7 +16,17 @@ Wallet][fractal-wallet].
 
 ## Instalation
 
-## Setup
+## Usage
+
+To add the dependency to your project, simply do:
+
+```
+yarn add @trustfractal/sdk
+```
+
+## Development
+
+### Setup
 
 First, clone & setup the repository:
 
@@ -24,7 +36,7 @@ cd fractal-sdk
 yarn install
 ```
 
-## Testing
+### Testing
 
 To run the tests you can simply do:
 
@@ -46,7 +58,7 @@ It is open-source, made available for free, and is subject to the terms in its [
 
 Fractal Wallet was created and is maintained with :heart: by [Fractal Protocol][fractal].
 
+[npm-shield]: https://img.shields.io/npm/v/@trustfractal/sdk?style=flat-square
 [license]: ./LICENSE
 [fractal]: https://protocol.fractal.id/
 [fractal-wallet]: https://github.com/trustfractal/wallet
-
