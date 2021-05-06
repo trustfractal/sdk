@@ -2,6 +2,7 @@
   "name": "@trustfractal/sdk",
   "version": "0.1.0",
   "main": "build/index.js",
+  "license": "MIT",
   "scripts": {
     "build": "tsc --project . --declaration",
     "postinstall": "tsc --project . --declaration",
