@@ -3,12 +3,17 @@ import { Contract, providers, utils as ethersUtils } from "ethers";
 import AttestedClaim from "../AttestedClaim";
 import ContractData from "./Contract.js";
 
+enum Networks {
+  ROPSTEN = "ropsten",
+  MAINNET = "mainnet",
+}
+
 export default class DIDContract {
   public static ABI = ContractData.abi;
 
   public static CONTRACT_ADDRESSES: Record<string, string> = {
-    ropsten: "0x181573a13F4BF5F76F6d09D0E2a7716F6929993A",
-    mainnet: "0x1A5FA65E50d503a29Ec57cD102f2e7970a6963BB",
+    [Networks.ROPSTEN]: "0x3FDC8245C0D167Ff3d8369615975cA2D8b391732",
+    [Networks.MAINNET]: "0x1A5FA65E50d503a29Ec57cD102f2e7970a6963BB",
   };
 
   public static toBuffer(str: string) {
@@ -19,25 +24,28 @@ export default class DIDContract {
   public contract: Contract;
 
   public constructor(
-    network: string,
+    { address, network }: { address?: string; network?: Networks },
     {
       provider,
       providerUrl,
     }: { provider?: providers.Provider; providerUrl?: string }
   ) {
-    const address = DIDContract.CONTRACT_ADDRESSES[network];
+    if (!address && !network)
+      throw new Error("Missing either address or network");
 
-    if (!address) throw new Error(`Invalid network ${network}`);
+    const contractAddress = address ?? DIDContract.CONTRACT_ADDRESSES[network!];
+
+    if (!contractAddress) throw new Error(`Invalid network ${network}`);
 
     if (!provider && !providerUrl)
       throw new Error("Missing either provider or provider URL");
 
     const rpcProvider =
-      provider ||
+      provider ??
       (new providers.JsonRpcProvider(providerUrl) as providers.Provider);
 
-    this.address = address;
-    this.contract = new Contract(address, DIDContract.ABI, rpcProvider);
+    this.address = contractAddress;
+    this.contract = new Contract(contractAddress, DIDContract.ABI, rpcProvider);
   }
 
   public computeSignableKey({ claimerAddress, rootHash }: AttestedClaim) {
