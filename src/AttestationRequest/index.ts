@@ -63,6 +63,15 @@ export default class Request implements IAttestationRequest {
     );
   }
 
+  public validateWithoutSignature(): boolean {
+    // ensure that all the validations always run
+    const validClaimHashTree = this.validateClaimHashTree();
+    const validClaimTypeHash = this.validateClaimTypeHash();
+    const validRootHash = this.validateRootHash();
+
+    return validClaimHashTree && validClaimTypeHash && validRootHash;
+  }
+
   public validateClaimerSignature(): boolean {
     if (!this.claimerSignature || !this.claim.owner) return false;
 
