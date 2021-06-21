@@ -11,4 +11,8 @@ export class Byte {
   get value(): number {
     return this._value[0];
   }
+
+  public toJSON(): string {
+    return this._value[0].toString();
+  }
 }
