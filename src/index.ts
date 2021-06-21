@@ -10,6 +10,7 @@ import Utils from "./utils";
 
 import {
   Address,
+  Byte,
   Hash,
   HashTree,
   HashWithNonce,
