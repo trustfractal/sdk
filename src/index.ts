@@ -5,6 +5,7 @@ import AttestedClaim from "./AttestedClaim";
 import Crypto from "./Crypto";
 import DIDContract from "./DIDContract";
 import FractalError from "./FractalError";
+import SelfAttestedClaim from "./SelfAttestedClaim";
 import Utils from "./utils";
 
 import {
@@ -19,6 +20,7 @@ import {
   IClaimSchema,
   IClaimType,
   IAttestedClaim,
+  ISelfAttestedClaim,
   Property,
   Signature,
 } from "./types";
@@ -35,6 +37,7 @@ export {
   Hash,
   HashTree,
   HashWithNonce,
+  SelfAttestedClaim,
   IAttestationRequest,
   IClaim,
   IClaimProperties,
@@ -42,6 +45,7 @@ export {
   IClaimSchema,
   IClaimType,
   IAttestedClaim,
+  ISelfAttestedClaim,
   Property,
   Signature,
   Utils,
