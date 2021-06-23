@@ -165,7 +165,6 @@ describe("verifySignature", () => {
 
 describe("removeProperty", () => {
   it("deletes the property and the corresponding nonce", () => {
-    // const selfAttestedClaim = buildSelfAttestedClaim();
     const claimerAddress = "0x0";
     const attesterAddress = "0x1";
     const claimTypeHash = { hash: "0x123", nonce: "0x0" };
