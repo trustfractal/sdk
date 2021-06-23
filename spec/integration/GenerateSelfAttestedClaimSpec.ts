@@ -55,5 +55,20 @@ describe("generate a self attested claim", () => {
     // signed
     expect(selfAttestedClaim.verifyIntegrity()).toBeTrue();
     expect(selfAttestedClaim.verifySignature()).toBeTrue();
+
+    // Remove the property from the selfAttestedClaim
+    selfAttestedClaim.removeProperty("full_name");
+
+    expect(selfAttestedClaim.getProperty("residential_address_country"));
+    expect(selfAttestedClaim.getProperty("date_of_birth"));
+    expect(selfAttestedClaim.getProperty("full_name"));
+    expect(selfAttestedClaim.getProperty("identification_document_country"));
+    expect(selfAttestedClaim.getProperty("identification_document_number"));
+    expect(selfAttestedClaim.getProperty("identification_document_type"));
+    expect(selfAttestedClaim.getProperty("liveness"));
+    expect(selfAttestedClaim.getProperty("full_name")).not.toBeDefined();
+
+    // Ensure the integrity of data
+    expect(selfAttestedClaim.verifyIntegrity()).toBeTrue();
   });
 });

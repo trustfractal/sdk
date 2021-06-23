@@ -162,3 +162,48 @@ describe("verifySignature", () => {
     expect(selfAttestedClaim.verifySignature()).toBeFalse();
   });
 });
+
+describe("removeProperty", () => {
+  it("deletes the property and the corresponding nonce", () => {
+    const claimerAddress = "0x0";
+    const attesterAddress = "0x1";
+    const claimTypeHash = { hash: "0x123", nonce: "0x0" };
+
+    const claimHashTree = {
+      full_name: { hash: "0x1", nonce: "0x2" },
+      date_of_birth: { hash: "0x3", nonce: "0x4" },
+    };
+
+    const claim = {
+      claimTypeHash: claimTypeHash.hash,
+      owner: claimerAddress,
+      properties: {
+        full_name: "JOHN CITIZEN",
+        date_of_birth: "1990-01-01",
+      },
+    };
+
+    const selfAttestedClaim = new SelfAttestedClaim({
+      claim,
+      claimTypeHash,
+      claimHashTree,
+      rootHash: "0x0",
+      claimerAddress,
+      attesterAddress,
+      attesterSignature: null,
+      countryOfIDIssuance: new Byte(1),
+      countryOfResidence: new Byte(1),
+      kycType: new Byte(1),
+    });
+
+    selfAttestedClaim.removeProperty("date_of_birth");
+
+    expect(selfAttestedClaim.claim.properties).toEqual({
+      full_name: "JOHN CITIZEN",
+    });
+    expect(selfAttestedClaim.claimHashTree).toEqual({
+      full_name: { hash: "0x1", nonce: "0x2" },
+      date_of_birth: { hash: "0x3" },
+    });
+  });
+});

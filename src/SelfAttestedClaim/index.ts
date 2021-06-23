@@ -109,6 +109,15 @@ export default class SelfAttestedClaim implements ISelfAttestedClaim {
     );
   }
 
+  public removeProperty(property: string): void {
+    delete this.claim.properties[property];
+    delete this.claimHashTree[property]["nonce"];
+  }
+
+  public getProperty(property: string): any {
+    return this.claim.properties[property];
+  }
+
   public verifyIntegrity(): boolean {
     return (
       this.verifyClaimHashTree() &&
