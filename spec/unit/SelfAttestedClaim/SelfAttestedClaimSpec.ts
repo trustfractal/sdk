@@ -1,5 +1,5 @@
 import "jasmine";
-import { Wallet } from "ethers";
+import { Wallet, utils as ethersUtils } from "ethers";
 
 import AttestationRequest from "../../../src/AttestationRequest";
 import Claim from "../../../src/Claim";
@@ -139,7 +139,9 @@ describe("verifySignature", () => {
     const attester = Wallet.createRandom();
     const selfAttestedClaim = buildSelfAttestedClaim(attester.address);
     const hash = selfAttestedClaim.generateHash();
-    selfAttestedClaim.attesterSignature = await attester.signMessage(hash);
+    selfAttestedClaim.attesterSignature = await attester.signMessage(
+      ethersUtils.arrayify(hash)
+    );
 
     expect(selfAttestedClaim.verifySignature()).toBeTrue();
   });
