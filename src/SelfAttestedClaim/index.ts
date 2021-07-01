@@ -98,7 +98,7 @@ export default class SelfAttestedClaim implements ISelfAttestedClaim {
 
   public generateHash(): Hash {
     return ethersUtils.solidityKeccak256(
-      ["string", "uint8", "uint8", "uint8", "string"],
+      ["address", "uint8", "uint8", "uint8", "bytes32"],
       [
         this.claimerAddress,
         this.kycType.value,
@@ -132,7 +132,7 @@ export default class SelfAttestedClaim implements ISelfAttestedClaim {
 
     return Crypto.verifySignature(
       this.attesterSignature,
-      this.generateHash(),
+      ethersUtils.arrayify(this.generateHash()),
       this.attesterAddress
     );
   }

@@ -23,6 +23,7 @@ export const PlusSchema = {
 };
 
 export const WalletSchema = {
+  wallet_address: { type: "string" },
   wallet_currency: { type: "string" },
 };
 

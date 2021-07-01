@@ -1,5 +1,5 @@
 import "jasmine";
-import { Wallet } from "ethers";
+import { Wallet, utils as ethersUtils } from "ethers";
 
 import AttestationRequest from "../../src/AttestationRequest";
 import Claim from "../../src/Claim";
@@ -10,7 +10,7 @@ describe("generate a self attested claim", () => {
   it("results in a valid SelfAttestedClaim", async () => {
     const attester = Wallet.createRandom();
     const claimer = Wallet.createRandom();
-    const kycLevel = "basic+liveness";
+    const kycLevel = "basic+liveness+wallet";
 
     // Generate a claim type
     const claimType = ClaimType.build(kycLevel);
@@ -24,6 +24,8 @@ describe("generate a self attested claim", () => {
       identification_document_number: "00000000",
       identification_document_type: "passport",
       liveness: true,
+      wallet_currency: "ETH",
+      wallet_address: claimer.address,
     };
 
     const claim = new Claim(claimType, properties, claimer.address);
@@ -48,7 +50,7 @@ describe("generate a self attested claim", () => {
     // Generate the hash and sign it
     const hashToSign = selfAttestedClaim.generateHash();
     selfAttestedClaim.attesterSignature = await attester.signMessage(
-      hashToSign
+      ethersUtils.arrayify(hashToSign)
     );
 
     // Run the expectations: the claim has complete integrity and is correctly
