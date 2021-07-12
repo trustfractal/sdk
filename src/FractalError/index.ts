@@ -42,4 +42,12 @@ export default class FractalError extends Error {
       )}`
     );
   }
+
+  public static unsupportedCountry(country: string) {
+    return new FractalError(`Unsupported Country: ${country}`);
+  }
+
+  public static unsupportedKycType(kycType: string) {
+    return new FractalError(`Unsupported KYC Type: ${kycType}`);
+  }
 }
