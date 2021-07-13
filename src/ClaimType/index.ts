@@ -7,6 +7,9 @@ import {
   BasicSchema,
   PlusSchema,
   WalletSchema,
+  SelfieSchema,
+  SoWSchema,
+  AccreditationSchema,
   CountryOfIDIssuanceKey,
   CountryOfResidenceKey,
 } from "./schemas";
@@ -18,6 +21,19 @@ export default class ClaimType implements IClaimType {
   public static BasicSchema = BasicSchema;
   public static PlusSchema = PlusSchema;
   public static WalletSchema = WalletSchema;
+  public static SelfieSchema = SelfieSchema;
+  public static SoWSchema = SoWSchema;
+  public static AccreditationSchema = AccreditationSchema;
+
+  public static SupportedSchemas: Record<string, object> = {
+    liveness: ClaimType.LivenessSchema,
+    basic: ClaimType.BasicSchema,
+    plus: ClaimType.PlusSchema,
+    wallet: ClaimType.WalletSchema,
+    selfie: ClaimType.SelfieSchema,
+    sow: ClaimType.SoWSchema,
+    accreditation: ClaimType.AccreditationSchema,
+  };
 
   public static CountryOfIDIssuanceKey = CountryOfIDIssuanceKey;
   public static CountryOfResidenceKey = CountryOfResidenceKey;
@@ -64,19 +80,10 @@ export default class ClaimType implements IClaimType {
   public static build(level: string) {
     const levels = level.split("+").sort();
 
-    const fullSchema = levels.reduce((memo, level) => {
-      switch (level) {
-        case "liveness":
-          return { ...memo, ...ClaimType.LivenessSchema };
-        case "basic":
-          return { ...memo, ...ClaimType.BasicSchema };
-        case "plus":
-          return { ...memo, ...ClaimType.PlusSchema };
-        case "wallet":
-          return { ...memo, ...ClaimType.WalletSchema };
-        default:
-          return memo;
-      }
+    const fullSchema = levels.reduce((memo, level: string) => {
+      const schema = ClaimType.SupportedSchemas[level] || {};
+
+      return { ...memo, ...schema };
     }, {});
 
     const schema = ClaimType.buildSchema(levels.join("+"), fullSchema);
