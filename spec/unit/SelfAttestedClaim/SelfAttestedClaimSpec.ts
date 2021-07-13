@@ -9,11 +9,12 @@ import SelfAttestedClaim from "../../../src/SelfAttestedClaim";
 import { Byte } from "../../../src/types";
 
 const buildClaim = (address?: string) => {
-  const kycLevel = "basic+liveness";
+  const kycLevel = "plus+liveness+wallet";
 
   const claimType = ClaimType.build(kycLevel);
 
   const properties = {
+    place_of_birth: "New Zealand",
     residential_address_country: "NZ",
     date_of_birth: "1990-01-01",
     full_name: "JOHN CITIZEN",
@@ -21,13 +22,15 @@ const buildClaim = (address?: string) => {
     identification_document_number: "00000000",
     identification_document_type: "passport",
     liveness: true,
+    wallet_address: "0x0",
+    wallet_currency: "ETH",
   };
 
   return new Claim(claimType, properties, address);
 };
 
 const buildSelfAttestedClaim = (attesterAddress?: string) => {
-  const kycLevel = "basic+liveness";
+  const kycLevel = "plus+liveness+wallet";
   const attester = attesterAddress || Wallet.createRandom().address;
   const claimerAddress = Wallet.createRandom().address;
   const claim = buildClaim(claimerAddress);
@@ -38,7 +41,7 @@ const buildSelfAttestedClaim = (attesterAddress?: string) => {
 
 describe("fromRequest", () => {
   it("requires a claim owner", () => {
-    const kycLevel = "basic+liveness";
+    const kycLevel = "plus+liveness+wallet";
     const attesterAddress = Wallet.createRandom().address;
     const claim = buildClaim();
     const request = AttestationRequest.fromClaim(claim);
@@ -50,7 +53,7 @@ describe("fromRequest", () => {
   });
 
   it("requires a valid attestation request", () => {
-    const kycLevel = "basic+liveness";
+    const kycLevel = "plus+liveness+wallet";
     const attesterAddress = Wallet.createRandom().address;
     const claimerAddress = Wallet.createRandom().address;
     const claim = buildClaim(claimerAddress);
@@ -64,7 +67,7 @@ describe("fromRequest", () => {
   });
 
   it("requires the claim type corresponding to the claim", () => {
-    const kycLevel = "plus+liveness";
+    const kycLevel = "plus+liveness+wallet+sow";
     const attesterAddress = Wallet.createRandom().address;
     const claimerAddress = Wallet.createRandom().address;
     const claim = buildClaim(claimerAddress);
@@ -77,7 +80,7 @@ describe("fromRequest", () => {
   });
 
   it("converts the country of residence, country of ID issuance and KYC level", () => {
-    const kycLevel = "basic+liveness";
+    const kycLevel = "plus+liveness+wallet";
     const attesterAddress = Wallet.createRandom().address;
     const claimerAddress = Wallet.createRandom().address;
     const claim = buildClaim(claimerAddress);

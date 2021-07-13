@@ -10,13 +10,14 @@ describe("generate a self attested claim", () => {
   it("results in a valid SelfAttestedClaim", async () => {
     const attester = Wallet.createRandom();
     const claimer = Wallet.createRandom();
-    const kycLevel = "basic+liveness+wallet";
+    const kycLevel = "plus+liveness+wallet";
 
     // Generate a claim type
     const claimType = ClaimType.build(kycLevel);
 
     // Create a claim with our data
     const properties = {
+      place_of_birth: "New Zealand",
       residential_address_country: "NZ",
       date_of_birth: "1990-01-01",
       full_name: "JOHN CITIZEN",
