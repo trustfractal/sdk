@@ -1,54 +1,36 @@
-import AttestationRequest from "./AttestationRequest";
-import Claim from "./Claim";
-import ClaimType from "./ClaimType";
-import AttestedClaim from "./AttestedClaim";
+import Credential from "./Credential";
+import Schema from "./Schema";
+import CryptographicHashTree from "./HashTree";
 import Crypto from "./Crypto";
-import DIDContract from "./DIDContract";
 import FractalError from "./FractalError";
-import SelfAttestedClaim from "./SelfAttestedClaim";
 import Utils from "./utils";
 
 import {
   Address,
-  Byte,
   Hash,
   HashTree,
   HashWithNonce,
-  IAttestationRequest,
-  IClaim,
-  IClaimProperties,
-  IClaimPseudoSchema,
-  IClaimSchema,
-  IClaimType,
-  IAttestedClaim,
-  ISelfAttestedClaim,
+  ICredential,
+  ISchema,
+  Properties,
   Property,
   Signature,
 } from "./types";
 
 export {
   Address,
-  AttestationRequest,
-  AttestedClaim,
-  Byte,
-  Claim,
-  ClaimType,
+  Credential,
   Crypto,
-  DIDContract,
+  CryptographicHashTree,
   FractalError,
   Hash,
   HashTree,
   HashWithNonce,
-  IAttestationRequest,
-  IAttestedClaim,
-  IClaim,
-  IClaimProperties,
-  IClaimPseudoSchema,
-  IClaimSchema,
-  IClaimType,
-  ISelfAttestedClaim,
+  ICredential,
+  ISchema,
+  Properties,
   Property,
-  SelfAttestedClaim,
+  Schema,
   Signature,
   Utils,
 };
