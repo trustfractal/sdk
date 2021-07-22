@@ -1,4 +1,4 @@
-import { Byte } from "../types/Byte";
+import { CountryTier } from "../types";
 import FractalError from "../FractalError";
 
 const TierList: Record<string, number> = {
@@ -254,12 +254,12 @@ const TierList: Record<string, number> = {
   AS: 7,
 };
 
-const ToTier = (country: string): Byte => {
+const ToTier = (country: string): CountryTier => {
   const tier = TierList[country];
 
   if (!tier) throw FractalError.unsupportedCountry(country);
 
-  return new Byte(tier);
+  return tier as CountryTier;
 };
 
 export default {

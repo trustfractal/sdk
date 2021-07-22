@@ -1,4 +1,4 @@
-import { Byte } from "../types/Byte";
+import { KycType } from "../types";
 
 import FractalError from "../FractalError";
 
@@ -13,14 +13,14 @@ const SupportedKYCs = [
   "plus+selfie+accreditation+wallet+sow",
 ];
 
-const ToByte = (type: string): Byte => {
+const fromLevel = (type: string): KycType => {
   const index = SupportedKYCs.indexOf(type);
 
   if (index < 0) throw FractalError.unsupportedKycType(type);
 
-  return new Byte(index + 1);
+  return (index + 1) as KycType;
 };
 
 export default {
-  ToByte,
+  fromLevel,
 };

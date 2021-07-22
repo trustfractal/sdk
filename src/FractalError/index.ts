@@ -1,18 +1,28 @@
-import { IAttestationRequest } from "../types";
-
 export default class FractalError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "FractalError";
   }
 
-  public static invalidClaimTypeSchemaError(schema: object): FractalError {
+  public static invalidSchema(schema: object): FractalError {
+    return new FractalError(`Invalid schema ${JSON.stringify(schema)}`);
+  }
+
+  public static invalidProperties(properties: object): FractalError {
     return new FractalError(
-      `Invalid ClaimType schema ${JSON.stringify(schema)}`
+      `Invalid properties (did you forget to include the owner address?): ${JSON.stringify(
+        properties
+      )}`
     );
   }
 
-  public static propertyMismatchError(
+  public static invalidCredentialGeneration(credential: object): FractalError {
+    return new FractalError(
+      `Invalid credential generated: ${JSON.stringify(credential)}`
+    );
+  }
+
+  public static propertyMismatch(
     properties: object,
     schema: object
   ): FractalError {
@@ -27,19 +37,16 @@ export default class FractalError extends Error {
     );
   }
 
-  public static attestedClaimFromUnsignedRequest(request: IAttestationRequest) {
+  public static invalidSignature(
+    signature: string,
+    message: string,
+    signer: string
+  ) {
     return new FractalError(
-      `Cannot generate a attestedClaim from an unsigned request: ${JSON.stringify(
-        request
-      )}`
-    );
-  }
-
-  public static attestedClaimFromInvalidRequest(request: IAttestationRequest) {
-    return new FractalError(
-      `Cannot generate a attestedClaim from an invalid request: ${JSON.stringify(
-        request
-      )}`
+      `Invalid signature found.
+        Signature: ${signature}
+        Message: ${message}
+        Signer: ${signer}`
     );
   }
 
@@ -49,5 +56,9 @@ export default class FractalError extends Error {
 
   public static unsupportedKycType(kycType: string) {
     return new FractalError(`Unsupported KYC Type: ${kycType}`);
+  }
+
+  public static unsupportedKycLevel(level: string) {
+    return new FractalError(`Unsupported KYC level: ${level}`);
   }
 }

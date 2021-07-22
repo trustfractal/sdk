@@ -1,71 +1,63 @@
 import "jasmine";
-import { Wallet } from "ethers";
+import { Wallet, utils as ethersUtils } from "ethers";
 
 import Crypto from "../../../src/Crypto";
-import ClaimType from "../../../src/ClaimType";
-import Claim from "../../../src/Claim";
-import { utils as ethersUtils } from "ethers";
+import Schema from "../../../src/Schema";
 
 const soliditySha3 = (str: string) =>
   ethersUtils.solidityKeccak256(["string"], [str]);
 
 const buildHashTree = () => {
-  const claimTypeHash = "0x0";
   const properties = {
     name: "Foo",
     age: 20,
   };
+  const hashTree = Crypto.buildHashTree(properties);
 
-  const hashTree = Crypto.buildHashTree({
-    properties,
-    claimTypeHash,
-    owner: "0x0",
-  });
-
-  return { hashTree, properties, prefix: claimTypeHash };
+  return { hashTree, properties };
 };
 
 const buildRootHash = () => {
   const owner = "0x0";
-  const claimTypeHash = "0x1";
   const { hashTree } = buildHashTree();
 
-  const rootHash = Crypto.calculateRootHash(hashTree, claimTypeHash, owner);
+  const rootHash = Crypto.calculateRootHash(hashTree, owner);
 
   return {
     rootHash,
     hashTree,
     owner,
-    claimTypeHash,
   };
 };
 
+const buildSchemaWithProperties = () => {
+  const kycLevel = "plus+liveness+wallet";
+  const subject = Wallet.createRandom();
+
+  const properties = {
+    place_of_birth: "New Zealand",
+    residential_address_country: "NZ",
+    residential_address: "Fake St.",
+    date_of_birth: "1990-01-01",
+    full_name: "JOHN CITIZEN",
+    identification_document_country: "NZ",
+    identification_document_number: "00000000",
+    identification_document_type: "passport",
+    liveness: true,
+    wallet_currency: "ETH",
+    wallet_address: subject.address,
+  };
+
+  const schema = Schema.build(kycLevel);
+
+  return { schema, properties };
+};
+
 describe("buildHashTree", () => {
-  const pseudoSchema = ClaimType.buildSchema("Foo", {
-    name: { type: "string" },
-    age: { type: "number" },
-    address: {
-      type: "object",
-      properties: {
-        street: { type: "string" },
-        city: { type: "string" },
-      },
-    },
-  });
-
-  const claimType = ClaimType.fromSchema(pseudoSchema);
-  const owner = "0x0";
-
   it("generates a hash tree", () => {
-    const properties = {
-      name: "Foo",
-      age: 20,
-      address: { street: "Tinsel Street", city: "Metropolis" },
-    };
+    const { properties } = buildSchemaWithProperties();
 
-    const claim = new Claim(claimType, properties, owner);
-
-    const hashTree = Crypto.buildHashTree(claim);
+    const hashTree = Crypto.buildHashTree(properties);
 
     Object.keys(properties).forEach((key: string) => {
       expect(hashTree[key].hash).toBeDefined();
@@ -74,19 +66,12 @@ describe("buildHashTree", () => {
   });
 
   it("generates verifiable hashes", () => {
-    const properties = {
-      name: "Foo",
-      age: 20,
-      address: { street: "Tinsel Street", city: "Metropolis" },
-    };
+    const { properties } = buildSchemaWithProperties();
 
-    const claim = new Claim(claimType, properties, owner);
-
-    const hashTree = Crypto.buildHashTree(claim);
+    const hashTree = Crypto.buildHashTree(properties);
 
     Object.entries(properties).forEach(([key, value]: [string, any]) => {
-      const hashableKey = `${claim.claimTypeHash}#${key}`;
-      const hashable = JSON.stringify({ [hashableKey]: value });
+      const hashable = JSON.stringify({ [key]: value });
       const { nonce, hash } = hashTree[key];
 
       const { hash: expectedHash } = Crypto.hashWithNonce(hashable, nonce);
@@ -109,15 +94,12 @@ describe("calculateRootHash", () => {
       },
     };
 
-    const claimTypeHash = "0x2";
-    const owner = "0x3";
+    const owner = "0x2";
+    const expectedHash = soliditySha3("0x00x10x2");
 
-    const expectedHash = soliditySha3("0x00x10x20x3") || "";
-
-    const hash = Crypto.calculateRootHash(hashTree, claimTypeHash, owner);
+    const hash = Crypto.calculateRootHash(hashTree, owner);
 
     expect(hash).toEqual(expectedHash);
-    expect(hash).not.toEqual("");
   });
 
   it("outputs the same value for computationally equivalent hash trees", () => {
@@ -143,47 +125,12 @@ describe("calculateRootHash", () => {
       },
     };
 
-    const claimTypeHash = "0x2";
-    const owner = "0x3";
+    const owner = "0x2";
 
-    const hash1 = Crypto.calculateRootHash(hashTree1, claimTypeHash, owner);
-    const hash2 = Crypto.calculateRootHash(hashTree2, claimTypeHash, owner);
+    const hash1 = Crypto.calculateRootHash(hashTree1, owner);
+    const hash2 = Crypto.calculateRootHash(hashTree2, owner);
 
     expect(hash1).toEqual(hash2);
-  });
-});
-
-describe("verifyHashWithNonce", () => {
-  it("is true for valid claim type hashes", () => {
-    const hashWithNonce = Crypto.hashWithNonce("foo");
-
-    const result = Crypto.verifyHashWithNonce(hashWithNonce, "foo");
-
-    expect(result).toBeTrue();
-  });
-
-  it("is false for tampered hashes", () => {
-    const { nonce } = Crypto.hashWithNonce("foo");
-
-    const result = Crypto.verifyHashWithNonce({ hash: "fake", nonce }, "foo");
-
-    expect(result).not.toBeTrue();
-  });
-
-  it("is false for tampered hashes nonces", () => {
-    const { hash } = Crypto.hashWithNonce("foo");
-
-    const result = Crypto.verifyHashWithNonce({ hash, nonce: "fake" }, "foo");
-
-    expect(result).not.toBeTrue();
-  });
-
-  it("is false for different messages", () => {
-    const hashWithNonce = Crypto.hashWithNonce("foo");
-
-    const result = Crypto.verifyHashWithNonce(hashWithNonce, "bar");
-
-    expect(result).not.toBeTrue();
   });
 });
 
@@ -228,273 +175,214 @@ describe("verifySignature", async () => {
   });
 });
 
-describe("verifyClaimHashTree", () => {
-  it("is true for valid claim hash trees", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+describe("verifyHashTree", () => {
+  it("is true for valid hash trees", () => {
+    const { hashTree, properties } = buildHashTree();
 
-    const result = Crypto.verifyClaimHashTree(hashTree, properties, prefix);
+    const result = Crypto.verifyHashTree(hashTree, properties);
 
     expect(result).toBeTrue();
   });
 
-  it("is false for tampered claim hash trees", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+  it("is false for tampered hash trees", () => {
+    const { hashTree, properties } = buildHashTree();
     const [key, ..._rest] = Object.keys(properties);
 
     hashTree[key].hash = "tampered";
 
-    const result = Crypto.verifyClaimHashTree(hashTree, properties, prefix);
+    const result = Crypto.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
-  it("is false for tampered claim hash trees nonces", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+  it("is false for tampered hash trees nonces", () => {
+    const { hashTree, properties } = buildHashTree();
     const [key, ..._rest] = Object.keys(properties);
 
     hashTree[key].nonce = "tampered";
 
-    const result = Crypto.verifyClaimHashTree(hashTree, properties, prefix);
+    const result = Crypto.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
-  it("is false for tampered claim hash trees nodes", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+  it("is false for tampered hash trees nodes", () => {
+    const { hashTree, properties } = buildHashTree();
     const [[key, value], ..._rest] = Object.entries(properties);
 
-    const hashable = Crypto.buildHashableTreeValue(
-      prefix,
-      key,
-      value + "tampered"
-    );
+    const hashable = Crypto.buildHashableTreeValue(key, value + "tampered");
 
     hashTree[key] = Crypto.hashWithNonce(hashable);
 
-    const result = Crypto.verifyClaimHashTree(hashTree, properties, prefix);
+    const result = Crypto.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
-  it("is false for added claim hash trees nodes", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+  it("is false for added hash trees nodes", () => {
+    const { hashTree, properties } = buildHashTree();
 
-    const hashable = Crypto.buildHashableTreeValue(prefix, "tampered", "value");
+    const hashable = Crypto.buildHashableTreeValue("tampered", "value");
     hashTree["tampered"] = Crypto.hashWithNonce(hashable);
 
-    const result = Crypto.verifyClaimHashTree(hashTree, properties, prefix);
+    const result = Crypto.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
-  it("is false for missing claim hash trees nodes", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+  it("is false for missing hash trees nodes", () => {
+    const { hashTree, properties } = buildHashTree();
     const [key, ..._rest] = Object.keys(properties);
 
     delete hashTree[key];
 
-    const result = Crypto.verifyClaimHashTree(hashTree, properties, prefix);
+    const result = Crypto.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
   it("is false for tampered properties", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+    const { hashTree, properties } = buildHashTree();
     const [key, ..._rest] = Object.keys(properties);
 
     // @ts-ignore
     properties[key] = "tampered";
 
-    const result = Crypto.verifyClaimHashTree(hashTree, properties, prefix);
+    const result = Crypto.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
   it("is false for added properties", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+    const { hashTree, properties } = buildHashTree();
 
     // @ts-ignore
     properties["tampered"] = "value";
 
-    const result = Crypto.verifyClaimHashTree(hashTree, properties, prefix);
+    const result = Crypto.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
   it("is false for missing properties", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+    const { hashTree, properties } = buildHashTree();
     const [key, ..._rest] = Object.keys(properties);
 
     // @ts-ignore
     delete properties[key];
 
-    const result = Crypto.verifyClaimHashTree(hashTree, properties, prefix);
+    const result = Crypto.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 });
 
-describe("verifyPartialClaimHashTree", () => {
-  it("is true for valid claim hash trees", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+describe("verifyPartialHashTree", () => {
+  it("is true for valid hash trees", () => {
+    const { hashTree, properties } = buildHashTree();
 
-    const result = Crypto.verifyPartialClaimHashTree(
-      hashTree,
-      properties,
-      prefix
-    );
+    const result = Crypto.verifyPartialHashTree(hashTree, properties);
 
     expect(result).toBeTrue();
   });
 
-  it("is true for claim hash trees with nonces removed", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+  it("is true for hash trees with nonces removed", () => {
+    const { hashTree, properties } = buildHashTree();
     const [key, ..._rest] = Object.keys(properties);
 
     // @ts-ignore
     delete properties[key];
     delete hashTree[key].nonce;
 
-    const result = Crypto.verifyPartialClaimHashTree(
-      hashTree,
-      properties,
-      prefix
-    );
+    const result = Crypto.verifyPartialHashTree(hashTree, properties);
 
     expect(result).toBeTrue();
   });
 
-  it("is false for tampered claim hash trees", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+  it("is false for tampered hash trees", () => {
+    const { hashTree, properties } = buildHashTree();
     const [key, ..._rest] = Object.keys(properties);
 
     hashTree[key].hash = "tampered";
 
-    const result = Crypto.verifyPartialClaimHashTree(
-      hashTree,
-      properties,
-      prefix
-    );
+    const result = Crypto.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
-  it("is false for tampered claim hash trees nonces", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+  it("is false for tampered hash trees nonces", () => {
+    const { hashTree, properties } = buildHashTree();
     const [key, ..._rest] = Object.keys(properties);
 
     hashTree[key].nonce = "tampered";
 
-    const result = Crypto.verifyPartialClaimHashTree(
-      hashTree,
-      properties,
-      prefix
-    );
+    const result = Crypto.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
-  it("is false for tampered claim hash trees nodes", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+  it("is false for tampered hash trees nodes", () => {
+    const { hashTree, properties } = buildHashTree();
     const [[key, value], ..._rest] = Object.entries(properties);
 
-    const hashable = Crypto.buildHashableTreeValue(
-      prefix,
-      key,
-      value + "tampered"
-    );
+    const hashable = Crypto.buildHashableTreeValue(key, value + "tampered");
 
     hashTree[key] = Crypto.hashWithNonce(hashable);
 
-    const result = Crypto.verifyPartialClaimHashTree(
-      hashTree,
-      properties,
-      prefix
-    );
+    const result = Crypto.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
-  it("is false for missing claim hash trees nodes", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+  it("is false for missing hash trees nodes", () => {
+    const { hashTree, properties } = buildHashTree();
     const [key, ..._rest] = Object.keys(properties);
 
     delete hashTree[key];
 
-    const result = Crypto.verifyPartialClaimHashTree(
-      hashTree,
-      properties,
-      prefix
-    );
+    const result = Crypto.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
   it("is false for tampered properties", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+    const { hashTree, properties } = buildHashTree();
     const [key, ..._rest] = Object.keys(properties);
 
     // @ts-ignore
     properties[key] = "tampered";
 
-    const result = Crypto.verifyPartialClaimHashTree(
-      hashTree,
-      properties,
-      prefix
-    );
+    const result = Crypto.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 
   it("is false for added properties", () => {
-    const { hashTree, properties, prefix } = buildHashTree();
+    const { hashTree, properties } = buildHashTree();
 
     // @ts-ignore
     properties["tampered"] = "value";
 
-    const result = Crypto.verifyPartialClaimHashTree(
-      hashTree,
-      properties,
-      prefix
-    );
+    const result = Crypto.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
 });
 
 describe("validateRootHash", () => {
-  it("is true for valid claim root hashes", () => {
-    const { rootHash, owner, claimTypeHash, hashTree } = buildRootHash();
+  it("is true for valid root hashes", () => {
+    const { rootHash, owner, hashTree } = buildRootHash();
 
-    const result = Crypto.verifyRootHash(
-      hashTree,
-      claimTypeHash,
-      owner,
-      rootHash
-    );
+    const result = Crypto.verifyRootHash(hashTree, owner, rootHash);
 
     expect(result).toBeTrue();
   });
 
-  it("is falsed for tampered claim type hashes", () => {
-    const { rootHash, owner, claimTypeHash, hashTree } = buildRootHash();
-
-    const result = Crypto.verifyRootHash(
-      hashTree,
-      claimTypeHash + "tampered",
-      owner,
-      rootHash
-    );
-
-    expect(result).not.toBeTrue();
-  });
-
   it("is falsed for tampered owners", () => {
-    const { rootHash, owner, claimTypeHash, hashTree } = buildRootHash();
+    const { rootHash, owner, hashTree } = buildRootHash();
 
     const result = Crypto.verifyRootHash(
       hashTree,
-      claimTypeHash,
       owner + "tampered",
       rootHash
     );
@@ -502,17 +390,12 @@ describe("validateRootHash", () => {
     expect(result).not.toBeTrue();
   });
 
-  it("is false for tampered claim hash trees", () => {
-    const { rootHash, owner, claimTypeHash, hashTree } = buildRootHash();
+  it("is false for tampered hash trees", () => {
+    const { rootHash, owner, hashTree } = buildRootHash();
     const [key, _rest] = Object.keys(hashTree);
     hashTree[key].hash = "tampered";
 
-    const result = Crypto.verifyRootHash(
-      hashTree,
-      claimTypeHash,
-      owner,
-      rootHash
-    );
+    const result = Crypto.verifyRootHash(hashTree, owner, rootHash);
 
     expect(result).not.toBeTrue();
   });

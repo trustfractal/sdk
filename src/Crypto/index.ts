@@ -9,14 +9,7 @@ import {
 } from "../utils";
 
 import FractalError from "../FractalError";
-import {
-  IClaim,
-  HashWithNonce,
-  HashTree,
-  Signature,
-  Address,
-  Hash,
-} from "../types";
+import { Properties, HashTree, Signature, Address, Hash } from "../types";
 
 const doHash = (str: string, nonce: string = ""): string => {
   const value = ethersUtils.solidityKeccak256(
@@ -64,24 +57,13 @@ const hashWithNonce = (
   }
 };
 
-const buildHashTreeKey = (prefix: string, suffix: string) =>
-  `${prefix}#${suffix}`;
+const buildHashableTreeValue = (key: string, value: any): string =>
+  JSON.stringify({ [key]: value });
 
-const buildHashableTreeValue = (
-  prefix: string,
-  key: string,
-  value: any
-): string => {
-  const hashableKey = buildHashTreeKey(prefix, key);
-
-  return JSON.stringify({ [hashableKey]: value });
-};
-
-const buildHashTree = ({ properties, claimTypeHash }: IClaim): HashTree =>
+const buildHashTree = (properties: Properties): HashTree =>
   Object.entries(properties).reduce(
     (memo: HashTree, [key, value]: [string, any]) => {
-      const hashable = buildHashableTreeValue(claimTypeHash, key, value);
-
+      const hashable = buildHashableTreeValue(key, value);
       memo[key] = hashWithNonce(hashable);
 
       return memo;
@@ -89,27 +71,14 @@ const buildHashTree = ({ properties, claimTypeHash }: IClaim): HashTree =>
     {}
   );
 
-const calculateRootHash = (
-  claimHashTree: HashTree,
-  claimTypeHash: Hash,
-  owner: Address
-): string => {
-  const sortedHashes = Object.values(claimHashTree)
+const calculateRootHash = (hashTree: HashTree, owner: Address): string => {
+  const sortedHashes = Object.values(hashTree)
     .map(({ hash }) => hash)
     .sort();
 
-  const hashable = [...sortedHashes, claimTypeHash, owner].join("");
+  const hashable = [...sortedHashes, owner].join("");
 
   return hash(hashable);
-};
-
-const verifyHashWithNonce = (
-  { hash, nonce }: HashWithNonce,
-  source: Address
-): boolean => {
-  const { hash: expectedHash } = hashWithNonce(source, nonce);
-
-  return hash === expectedHash;
 };
 
 const verifySignature = (
@@ -118,13 +87,9 @@ const verifySignature = (
   expectedSigner: Address
 ) => ethersUtils.verifyMessage(message, signature) === expectedSigner;
 
-const verifyClaimHashTree = (
-  hashTree: HashTree,
-  properties: object,
-  prefix: string
-) => {
+const verifyHashTree = (hashTree: HashTree, properties: Properties) => {
   const validHashes = Object.entries(properties).every(([key, value]) => {
-    const hashable = buildHashableTreeValue(prefix, key, value);
+    const hashable = buildHashableTreeValue(key, value);
     const node = hashTree[key];
 
     if (!node) return false;
@@ -142,13 +107,9 @@ const verifyClaimHashTree = (
   return validHashes && sameKeys;
 };
 
-const verifyPartialClaimHashTree = (
-  hashTree: HashTree,
-  properties: object,
-  prefix: string
-) =>
+const verifyPartialHashTree = (hashTree: HashTree, properties: object) =>
   Object.entries(properties).every(([key, value]) => {
-    const hashable = buildHashableTreeValue(prefix, key, value);
+    const hashable = buildHashableTreeValue(key, value);
     const node = hashTree[key];
 
     if (!node) return false;
@@ -162,22 +123,19 @@ const verifyPartialClaimHashTree = (
   });
 
 const verifyRootHash = (
-  claimHashTree: HashTree,
-  claimTypeHash: Hash,
+  hashTree: HashTree,
   owner: Address,
   expectedHash: Hash
-) => calculateRootHash(claimHashTree, claimTypeHash, owner) === expectedHash;
+) => calculateRootHash(hashTree, owner) === expectedHash;
 
 export default {
   hash,
   hashWithNonce,
   buildHashTree,
-  buildHashTreeKey,
   buildHashableTreeValue,
   calculateRootHash,
-  verifyHashWithNonce,
   verifySignature,
   verifyRootHash,
-  verifyClaimHashTree,
-  verifyPartialClaimHashTree,
+  verifyHashTree,
+  verifyPartialHashTree,
 };
