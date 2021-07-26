@@ -2,6 +2,8 @@ import { KycType } from "../types";
 
 import FractalError from "../FractalError";
 
+const sortKYCType = (type: string): string => type.split("+").sort().join("+");
+
 const SupportedKYCs = [
   "plus+liveness+wallet",
   "plus+liveness+wallet+sow",
@@ -11,12 +13,12 @@ const SupportedKYCs = [
   "plus+liveness+accreditation+wallet+sow",
   "plus+selfie+accreditation+wallet",
   "plus+selfie+accreditation+wallet+sow",
-];
+].map(sortKYCType);
 
-const fromLevel = (type: string): KycType => {
-  const index = SupportedKYCs.indexOf(type);
+const fromLevel = (level: string): KycType => {
+  const index = SupportedKYCs.indexOf(sortKYCType(level));
 
-  if (index < 0) throw FractalError.unsupportedKycType(type);
+  if (index < 0) throw FractalError.unsupportedKycType(level);
 
   return (index + 1) as KycType;
 };
