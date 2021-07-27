@@ -1,13 +1,13 @@
 # Fractal DID SDK
 
-![][npm-shield]
+![npm shield][npm-shield]
 
 This is the SDK for interacting with Fractal's DID Credentials.
 
 After a user performs KYC with Fractal, that data is taken and a DID credential
 is generated.
 
-**Table of Contents**
+## Table of Contents
 
 - [Instalation](#instalation)
 - [Usage](#usage)
@@ -20,7 +20,7 @@ is generated.
 
 To add the dependency to your project, simply do:
 
-```
+```sh
 yarn add @trustfractal/sdk
 ```
 
@@ -29,6 +29,8 @@ yarn add @trustfractal/sdk
 The Credentials are generated and signed by Fractal's server. Once your KYC is
 approved, our servers will generate a credential. If you have the [Fractal
 Wallet][fractal-wallet] installed, it should automatically sync.
+
+You can find examples of integrating with Fractal DIDs [in our docs][did-docs].
 
 ### Generating and signing a credential
 
@@ -270,8 +272,8 @@ Our recommended implementation is:
 
 The current active signing keys (`FRACTAL_SIGNER` in the previous example) are:
 
-- **Staging:** `TODO`
-- **Production:** `0xE3749E993F0A63DD4BB163ed70e1c9965A2D2b7f`
+- **Staging:** `0xa372CA5A906f7FAD480C49bBc73453672d4d375d`
+- **Production:** `0xa3015543Ce7da7B9708076C1171E242C36452F10`
 
 ### Selective Disclosure
 
@@ -326,3 +328,4 @@ Fractal Wallet was created and is maintained with :heart: by [Fractal Protocol][
 [fractal]: https://protocol.fractal.id/
 [fractal-wallet]: https://github.com/trustfractal/wallet
 [country-tiers]: https://docs.google.com/spreadsheets/d/1Ot9YEpasZ3qVSnoZqQs2iEqgHUyYAAn2Q17d113PQZc/edit?usp=sharing
+[did-docs]: https://docs.developer.fractal.id/did-credentials
