@@ -1,4 +1,4 @@
-import FractalError from "src/FractalError";
+import FractalError from "../FractalError";
 import type { ISchema } from "../types";
 
 import {
