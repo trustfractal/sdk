@@ -24,3 +24,23 @@ describe("fromLevel", () => {
     expect(fn).toThrowError(/Unsupported KYC Type/);
   });
 });
+
+describe("isSupported", () => {
+  it("is true for supported levels", () => {
+    const isSupported = KYCTypes.isSupported("plus+liveness+wallet");
+
+    expect(isSupported).toBeTrue();
+  });
+
+  it("ignores level ordering", () => {
+    const isSupported = KYCTypes.isSupported("wallet+liveness+plus");
+
+    expect(isSupported).toBeTrue();
+  });
+
+  it("is false for unsupported types", () => {
+    const isSupported = KYCTypes.isSupported("not+supported");
+
+    expect(isSupported).toBeFalse();
+  });
+});
