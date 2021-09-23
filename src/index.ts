@@ -1,4 +1,5 @@
 import Credential from "./Credential";
+import KYCTypes from "./Credential/KYCTypes";
 import Schema from "./Schema";
 import CryptographicHashTree from "./HashTree";
 import Crypto from "./Crypto";
@@ -28,6 +29,7 @@ export {
   HashWithNonce,
   ICredential,
   ISchema,
+  KYCTypes,
   Properties,
   Property,
   Schema,
