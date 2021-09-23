@@ -23,6 +23,13 @@ const fromLevel = (level: string): KycType => {
   return (index + 1) as KycType;
 };
 
+const isSupported = (level: string): boolean => {
+  const index = SupportedKYCs.indexOf(sortKYCType(level));
+
+  return index >= 0;
+};
+
 export default {
   fromLevel,
+  isSupported,
 };
