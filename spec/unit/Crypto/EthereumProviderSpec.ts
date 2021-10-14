@@ -1,7 +1,7 @@
 import "jasmine";
 import { Wallet, utils as ethersUtils } from "ethers";
 
-import Crypto from "../../../src/Crypto";
+import EthereumProvider from "../../../src/Crypto/EthereumProvider";
 import Schema from "../../../src/Schema";
 
 const soliditySha3 = (str: string) =>
@@ -12,7 +12,7 @@ const buildHashTree = () => {
     name: "Foo",
     age: 20,
   };
-  const hashTree = Crypto.buildHashTree(properties);
+  const hashTree = EthereumProvider.buildHashTree(properties);
 
   return { hashTree, properties };
 };
@@ -21,7 +21,7 @@ const buildRootHash = () => {
   const owner = "0x0";
   const { hashTree } = buildHashTree();
 
-  const rootHash = Crypto.calculateRootHash(hashTree, owner);
+  const rootHash = EthereumProvider.calculateRootHash(hashTree, owner);
 
   return {
     rootHash,
@@ -57,7 +57,7 @@ describe("buildHashTree", () => {
   it("generates a hash tree", () => {
     const { properties } = buildSchemaWithProperties();
 
-    const hashTree = Crypto.buildHashTree(properties);
+    const hashTree = EthereumProvider.buildHashTree(properties);
 
     Object.keys(properties).forEach((key: string) => {
       expect(hashTree[key].hash).toBeDefined();
@@ -68,13 +68,16 @@ describe("buildHashTree", () => {
   it("generates verifiable hashes", () => {
     const { properties } = buildSchemaWithProperties();
 
-    const hashTree = Crypto.buildHashTree(properties);
+    const hashTree = EthereumProvider.buildHashTree(properties);
 
     Object.entries(properties).forEach(([key, value]: [string, any]) => {
       const hashable = JSON.stringify({ [key]: value });
       const { nonce, hash } = hashTree[key];
 
-      const { hash: expectedHash } = Crypto.hashWithNonce(hashable, nonce);
+      const { hash: expectedHash } = EthereumProvider.hashWithNonce(
+        hashable,
+        nonce
+      );
 
       expect(hash).toEqual(expectedHash);
     });
@@ -97,7 +100,7 @@ describe("calculateRootHash", () => {
     const owner = "0x2";
     const expectedHash = soliditySha3("0x00x10x2");
 
-    const hash = Crypto.calculateRootHash(hashTree, owner);
+    const hash = EthereumProvider.calculateRootHash(hashTree, owner);
 
     expect(hash).toEqual(expectedHash);
   });
@@ -127,8 +130,8 @@ describe("calculateRootHash", () => {
 
     const owner = "0x2";
 
-    const hash1 = Crypto.calculateRootHash(hashTree1, owner);
-    const hash2 = Crypto.calculateRootHash(hashTree2, owner);
+    const hash1 = EthereumProvider.calculateRootHash(hashTree1, owner);
+    const hash2 = EthereumProvider.calculateRootHash(hashTree2, owner);
 
     expect(hash1).toEqual(hash2);
   });
@@ -139,35 +142,54 @@ describe("verifySignature", async () => {
   const otherWallet = Wallet.createRandom();
 
   it("is true for valid signatures", async () => {
-    const signature = await wallet.signMessage("foo");
+    const message = ethersUtils.solidityKeccak256(["string"], ["foo"]);
+    const signature = await wallet.signMessage(ethersUtils.arrayify(message));
 
-    const result = Crypto.verifySignature(signature, "foo", wallet.address);
+    const result = EthereumProvider.verifySignature(
+      signature,
+      message,
+      wallet.address
+    );
 
     expect(result).toBeTrue();
   });
 
   it("is false for other messages", async () => {
-    const signature = await wallet.signMessage("foo");
+    const message = ethersUtils.solidityKeccak256(["string"], ["foo"]);
+    const signature = await wallet.signMessage(ethersUtils.arrayify(message));
+    const otherMessage = ethersUtils.solidityKeccak256(["string"], ["bar"]);
 
-    const result = Crypto.verifySignature(signature, "bar", wallet.address);
+    const result = EthereumProvider.verifySignature(
+      signature,
+      otherMessage,
+      wallet.address
+    );
 
     expect(result).not.toBeTrue();
   });
 
   it("is false for tampered signatures", async () => {
-    const signature = await otherWallet.signMessage("foo");
+    const message = ethersUtils.solidityKeccak256(["string"], ["foo"]);
+    const signature = await otherWallet.signMessage(
+      ethersUtils.arrayify(message)
+    );
 
-    const result = Crypto.verifySignature(signature, "foo", wallet.address);
+    const result = EthereumProvider.verifySignature(
+      signature,
+      message,
+      wallet.address
+    );
 
     expect(result).not.toBeTrue();
   });
 
   it("is false for tampered addresses", async () => {
-    const signature = await wallet.signMessage("foo");
+    const message = ethersUtils.solidityKeccak256(["string"], ["foo"]);
+    const signature = await wallet.signMessage(ethersUtils.arrayify(message));
 
-    const result = Crypto.verifySignature(
+    const result = EthereumProvider.verifySignature(
       signature,
-      "foo",
+      message,
       otherWallet.address
     );
 
@@ -179,7 +201,7 @@ describe("verifyHashTree", () => {
   it("is true for valid hash trees", () => {
     const { hashTree, properties } = buildHashTree();
 
-    const result = Crypto.verifyHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyHashTree(hashTree, properties);
 
     expect(result).toBeTrue();
   });
@@ -190,7 +212,7 @@ describe("verifyHashTree", () => {
 
     hashTree[key].hash = "tampered";
 
-    const result = Crypto.verifyHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -201,7 +223,7 @@ describe("verifyHashTree", () => {
 
     hashTree[key].nonce = "tampered";
 
-    const result = Crypto.verifyHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -210,11 +232,14 @@ describe("verifyHashTree", () => {
     const { hashTree, properties } = buildHashTree();
     const [[key, value], ..._rest] = Object.entries(properties);
 
-    const hashable = Crypto.buildHashableTreeValue(key, value + "tampered");
+    const hashable = EthereumProvider.buildHashableTreeValue(
+      key,
+      value + "tampered"
+    );
 
-    hashTree[key] = Crypto.hashWithNonce(hashable);
+    hashTree[key] = EthereumProvider.hashWithNonce(hashable);
 
-    const result = Crypto.verifyHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -222,10 +247,13 @@ describe("verifyHashTree", () => {
   it("is false for added hash trees nodes", () => {
     const { hashTree, properties } = buildHashTree();
 
-    const hashable = Crypto.buildHashableTreeValue("tampered", "value");
-    hashTree["tampered"] = Crypto.hashWithNonce(hashable);
+    const hashable = EthereumProvider.buildHashableTreeValue(
+      "tampered",
+      "value"
+    );
+    hashTree["tampered"] = EthereumProvider.hashWithNonce(hashable);
 
-    const result = Crypto.verifyHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -236,7 +264,7 @@ describe("verifyHashTree", () => {
 
     delete hashTree[key];
 
-    const result = Crypto.verifyHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -248,7 +276,7 @@ describe("verifyHashTree", () => {
     // @ts-ignore
     properties[key] = "tampered";
 
-    const result = Crypto.verifyHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -259,7 +287,7 @@ describe("verifyHashTree", () => {
     // @ts-ignore
     properties["tampered"] = "value";
 
-    const result = Crypto.verifyHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -271,7 +299,7 @@ describe("verifyHashTree", () => {
     // @ts-ignore
     delete properties[key];
 
-    const result = Crypto.verifyHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -281,7 +309,7 @@ describe("verifyPartialHashTree", () => {
   it("is true for valid hash trees", () => {
     const { hashTree, properties } = buildHashTree();
 
-    const result = Crypto.verifyPartialHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyPartialHashTree(hashTree, properties);
 
     expect(result).toBeTrue();
   });
@@ -294,7 +322,7 @@ describe("verifyPartialHashTree", () => {
     delete properties[key];
     delete hashTree[key].nonce;
 
-    const result = Crypto.verifyPartialHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyPartialHashTree(hashTree, properties);
 
     expect(result).toBeTrue();
   });
@@ -305,7 +333,7 @@ describe("verifyPartialHashTree", () => {
 
     hashTree[key].hash = "tampered";
 
-    const result = Crypto.verifyPartialHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -316,7 +344,7 @@ describe("verifyPartialHashTree", () => {
 
     hashTree[key].nonce = "tampered";
 
-    const result = Crypto.verifyPartialHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -325,11 +353,14 @@ describe("verifyPartialHashTree", () => {
     const { hashTree, properties } = buildHashTree();
     const [[key, value], ..._rest] = Object.entries(properties);
 
-    const hashable = Crypto.buildHashableTreeValue(key, value + "tampered");
+    const hashable = EthereumProvider.buildHashableTreeValue(
+      key,
+      value + "tampered"
+    );
 
-    hashTree[key] = Crypto.hashWithNonce(hashable);
+    hashTree[key] = EthereumProvider.hashWithNonce(hashable);
 
-    const result = Crypto.verifyPartialHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -340,7 +371,7 @@ describe("verifyPartialHashTree", () => {
 
     delete hashTree[key];
 
-    const result = Crypto.verifyPartialHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -352,7 +383,7 @@ describe("verifyPartialHashTree", () => {
     // @ts-ignore
     properties[key] = "tampered";
 
-    const result = Crypto.verifyPartialHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -363,7 +394,7 @@ describe("verifyPartialHashTree", () => {
     // @ts-ignore
     properties["tampered"] = "value";
 
-    const result = Crypto.verifyPartialHashTree(hashTree, properties);
+    const result = EthereumProvider.verifyPartialHashTree(hashTree, properties);
 
     expect(result).not.toBeTrue();
   });
@@ -373,7 +404,7 @@ describe("validateRootHash", () => {
   it("is true for valid root hashes", () => {
     const { rootHash, owner, hashTree } = buildRootHash();
 
-    const result = Crypto.verifyRootHash(hashTree, owner, rootHash);
+    const result = EthereumProvider.verifyRootHash(hashTree, owner, rootHash);
 
     expect(result).toBeTrue();
   });
@@ -381,7 +412,7 @@ describe("validateRootHash", () => {
   it("is falsed for tampered owners", () => {
     const { rootHash, owner, hashTree } = buildRootHash();
 
-    const result = Crypto.verifyRootHash(
+    const result = EthereumProvider.verifyRootHash(
       hashTree,
       owner + "tampered",
       rootHash
@@ -395,7 +426,7 @@ describe("validateRootHash", () => {
     const [key, _rest] = Object.keys(hashTree);
     hashTree[key].hash = "tampered";
 
-    const result = Crypto.verifyRootHash(hashTree, owner, rootHash);
+    const result = EthereumProvider.verifyRootHash(hashTree, owner, rootHash);
 
     expect(result).not.toBeTrue();
   });

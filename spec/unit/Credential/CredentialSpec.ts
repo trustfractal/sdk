@@ -21,7 +21,7 @@ const buildCredential = () => {
     wallet_address: subject.address,
   };
 
-  return Credential.build(properties, kycLevel);
+  return Credential.Ethereum.build(properties, kycLevel);
 };
 
 describe("build", () => {
@@ -42,7 +42,7 @@ describe("build", () => {
       wallet_address: "0x123",
     };
 
-    const credential = Credential.build(properties, kycLevel);
+    const credential = Credential.Ethereum.build(properties, kycLevel);
 
     expect(credential.verifyIntegrity()).toBeTrue();
   });
@@ -64,7 +64,7 @@ describe("build", () => {
       wallet_address: "0x123",
     };
 
-    const credential = Credential.build(properties, kycLevel);
+    const credential = Credential.Ethereum.build(properties, kycLevel);
 
     expect(credential.countryOfResidence).toEqual(2);
     expect(credential.countryOfIDIssuance).toEqual(2);
@@ -87,7 +87,7 @@ describe("build", () => {
       wallet_address: "0x123",
     };
 
-    const credential = Credential.build(properties, kycLevel);
+    const credential = Credential.Ethereum.build(properties, kycLevel);
 
     expect(credential.kycType).toEqual(1);
   });
@@ -113,7 +113,7 @@ describe("setSignature", () => {
       wallet_address: subject.address,
     };
 
-    const credential = Credential.build(properties, kycLevel);
+    const credential = Credential.Ethereum.build(properties, kycLevel);
     const hashToSign = credential.generateHash();
 
     const signature = await issuer.signMessage(

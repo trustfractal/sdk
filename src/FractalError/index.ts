@@ -61,4 +61,8 @@ export default class FractalError extends Error {
   public static unsupportedKycLevel(level: string) {
     return new FractalError(`Unsupported KYC level: ${level}`);
   }
+
+  public static unsupportedBlockchain(blockchain: string) {
+    return new FractalError(`Unsupported blockchain: ${blockchain}`);
+  }
 }

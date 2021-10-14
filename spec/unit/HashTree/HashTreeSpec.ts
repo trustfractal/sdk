@@ -1,6 +1,6 @@
 import "jasmine";
 
-import Crypto from "../../../src/Crypto";
+import EthereumProvider from "../../../src/Crypto/EthereumProvider";
 import HashTree from "../../../src/HashTree";
 
 describe("build", () => {
@@ -12,9 +12,9 @@ describe("build", () => {
       wallet_currency: "ETH",
     };
 
-    const { hashTree } = HashTree.build(level, properties);
+    const { hashTree } = HashTree.build(EthereumProvider, level, properties);
 
-    const validHashTree = Crypto.verifyHashTree(hashTree, properties);
+    const validHashTree = EthereumProvider.verifyHashTree(hashTree, properties);
 
     expect(validHashTree).toBeTrue;
   });
@@ -28,9 +28,17 @@ describe("build", () => {
       wallet_currency: "ETH",
     };
 
-    const { rootHash, hashTree } = HashTree.build(level, properties);
+    const { rootHash, hashTree } = HashTree.build(
+      EthereumProvider,
+      level,
+      properties
+    );
 
-    const validRootHash = Crypto.verifyRootHash(hashTree, owner, rootHash);
+    const validRootHash = EthereumProvider.verifyRootHash(
+      hashTree,
+      owner,
+      rootHash
+    );
 
     expect(validRootHash).toBeTrue;
   });
@@ -43,7 +51,7 @@ describe("build", () => {
       wallet_currency: "ETH",
     };
 
-    const fn = () => HashTree.build(level, properties);
+    const fn = () => HashTree.build(EthereumProvider, level, properties);
 
     expect(fn).toThrowError(Error, /Unsupported KYC level/);
   });
@@ -55,7 +63,7 @@ describe("build", () => {
       wallet_currency: "ETH",
     };
 
-    const fn = () => HashTree.build(level, properties);
+    const fn = () => HashTree.build(EthereumProvider, level, properties);
 
     expect(fn).toThrowError(Error, /Properties do not match schema/);
   });
@@ -68,7 +76,7 @@ describe("build", () => {
       wallet_currency: "ETH",
     };
 
-    const fn = () => HashTree.build(level, properties);
+    const fn = () => HashTree.build(EthereumProvider, level, properties);
 
     expect(fn).toThrowError(Error, /Properties do not match schema/);
   });
@@ -82,7 +90,11 @@ describe("build", () => {
       fake_key: "123",
     };
 
-    const { properties: schemaProperties } = HashTree.build(level, properties);
+    const { properties: schemaProperties } = HashTree.build(
+      EthereumProvider,
+      level,
+      properties
+    );
 
     expect(schemaProperties["wallet_address"]).toBeDefined();
     expect(schemaProperties["wallet_currency"]).toBeDefined();
