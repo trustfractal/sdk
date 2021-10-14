@@ -25,7 +25,7 @@ describe("generate a credential", () => {
     };
 
     // Generate the credential
-    const credential = Credential.build(properties, kycLevel);
+    const credential = Credential.Ethereum.build(properties, kycLevel);
 
     // Generate the hash and sign it
     const hashToSign = credential.generateHash();

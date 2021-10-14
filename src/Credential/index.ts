@@ -1,12 +1,10 @@
 import Schema from "../Schema";
-import Crypto from "../Crypto";
 import FractalError from "../FractalError";
 import CryptographicHashTree from "../HashTree";
 
 import CountryTiers from "./CountryTiers";
 import KYCTypes from "./KYCTypes";
-
-import { utils as ethersUtils } from "ethers";
+import EthereumCredential from "./Ethereum";
 
 import {
   Properties,
@@ -17,6 +15,8 @@ import {
   ICredential,
   CountryTier,
   KycType,
+  Blockchain,
+  CryptoProvider,
 } from "../types";
 
 export default class Credential implements ICredential {
@@ -29,8 +29,17 @@ export default class Credential implements ICredential {
   public countryOfIDIssuance: CountryTier;
   public countryOfResidence: CountryTier;
   public kycType: KycType;
+  public blockchain: Blockchain;
+  public cryptoProvider: CryptoProvider;
 
-  public static build(properties: Properties, kycLevel: string) {
+  public static Ethereum = EthereumCredential;
+
+  public static build(
+    blockchain: Blockchain,
+    cryptoProvider: CryptoProvider,
+    properties: Properties,
+    kycLevel: string
+  ) {
     let subjectAddress = properties[Schema.WalletAddressKey];
 
     if (!subjectAddress) throw FractalError.invalidProperties(properties);
@@ -39,7 +48,7 @@ export default class Credential implements ICredential {
       rootHash,
       hashTree,
       properties: schemaProperties,
-    } = CryptographicHashTree.build(kycLevel, properties);
+    } = CryptographicHashTree.build(cryptoProvider, kycLevel, properties);
 
     const countryOfIDIssuance = CountryTiers.ToTier(
       schemaProperties[Schema.CountryOfIDIssuanceKey] as string
@@ -61,6 +70,8 @@ export default class Credential implements ICredential {
       kycType,
       issuerAddress: null,
       issuerSignature: null,
+      blockchain,
+      cryptoProvider,
     });
 
     if (credential.verifyIntegrity()) return credential;
@@ -77,6 +88,8 @@ export default class Credential implements ICredential {
     kycType,
     issuerAddress,
     issuerSignature,
+    blockchain,
+    cryptoProvider,
   }: ICredential) {
     this.properties = properties;
     this.hashTree = hashTree;
@@ -87,27 +100,25 @@ export default class Credential implements ICredential {
     this.countryOfIDIssuance = countryOfIDIssuance;
     this.countryOfResidence = countryOfResidence;
     this.kycType = kycType;
+    this.blockchain = blockchain;
+    this.cryptoProvider = cryptoProvider;
   }
 
   public generateHash(): Hash {
-    return ethersUtils.solidityKeccak256(
-      ["address", "uint8", "uint8", "uint8", "bytes32"],
-      [
-        this.subjectAddress,
-        this.kycType,
-        this.countryOfResidence,
-        this.countryOfIDIssuance,
-        this.rootHash,
-      ]
+    return this.cryptoProvider.generateCredentialHash(
+      this.subjectAddress,
+      this.kycType,
+      this.countryOfResidence,
+      this.countryOfIDIssuance,
+      this.rootHash
     );
   }
 
   public setSignature(signature: Signature, signedBy: Address) {
     const hash = this.generateHash();
-    const hashToSign = ethersUtils.arrayify(hash);
-    const validSignature = Crypto.verifySignature(
+    const validSignature = this.cryptoProvider.verifySignature(
       signature,
-      hashToSign,
+      hash,
       signedBy
     );
 
@@ -134,19 +145,22 @@ export default class Credential implements ICredential {
   public verifySignature(): boolean {
     if (!this.issuerSignature || !this.issuerAddress) return false;
 
-    return Crypto.verifySignature(
+    return this.cryptoProvider.verifySignature(
       this.issuerSignature,
-      ethersUtils.arrayify(this.generateHash()),
+      this.generateHash(),
       this.issuerAddress
     );
   }
 
   private verifyHashTree() {
-    return Crypto.verifyPartialHashTree(this.hashTree, this.properties);
+    return this.cryptoProvider.verifyPartialHashTree(
+      this.hashTree,
+      this.properties
+    );
   }
 
   private verifyRootHash() {
-    return Crypto.verifyRootHash(
+    return this.cryptoProvider.verifyRootHash(
       this.hashTree,
       this.subjectAddress,
       this.rootHash

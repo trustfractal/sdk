@@ -1,7 +1,6 @@
-import Crypto from "../Crypto";
 import Schema from "../Schema";
 
-import { Properties, ISchema } from "../types";
+import { Properties, ISchema, CryptoProvider } from "../types";
 
 const pruneProperties = (
   properties: Properties,
@@ -14,16 +13,20 @@ const pruneProperties = (
     .reduce((memo, [key, value]) => ({ ...memo, [key]: value }), {});
 };
 
-const build = (level: string, properties: Properties) => {
+const build = (
+  cryptoProvider: CryptoProvider,
+  level: string,
+  properties: Properties
+) => {
   const schema: ISchema = Schema.build(level);
 
   Schema.Validator.validate(schema, properties);
 
   const allowedProperties = pruneProperties(properties, schema) as Properties;
 
-  const hashTree = Crypto.buildHashTree(allowedProperties);
+  const hashTree = cryptoProvider.buildHashTree(allowedProperties);
   const owner = allowedProperties[Schema.WalletAddressKey] as string;
-  const rootHash = Crypto.calculateRootHash(hashTree, owner);
+  const rootHash = cryptoProvider.calculateRootHash(hashTree, owner);
 
   return { hashTree, rootHash, properties: allowedProperties, schema };
 };
