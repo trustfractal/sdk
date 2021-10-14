@@ -5,6 +5,7 @@ import CryptographicHashTree from "../HashTree";
 import CountryTiers from "./CountryTiers";
 import KYCTypes from "./KYCTypes";
 import EthereumCredential from "./Ethereum";
+import CardanoCredential from "./Cardano";
 
 import {
   Properties,
@@ -33,6 +34,7 @@ export default class Credential implements ICredential {
   public cryptoProvider: CryptoProvider;
 
   public static Ethereum = EthereumCredential;
+  public static Cardano = CardanoCredential;
 
   public static build(
     blockchain: Blockchain,

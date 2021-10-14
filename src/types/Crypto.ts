@@ -2,6 +2,8 @@ import { Properties } from "./base";
 
 export type Address = string;
 
+export type PublicKey = string;
+
 export type Hash = string;
 
 export type HashWithNonce = {
