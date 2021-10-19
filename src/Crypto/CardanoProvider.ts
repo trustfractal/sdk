@@ -8,8 +8,11 @@ import { BuildProvider } from "./builder";
 
 import { Signature, Address, Hash, PublicKey } from "../types";
 
+const blake2b_256 = (words: any[]): string =>
+  blake2bHex(words.join(""), undefined, 32);
+
 const hash = (str: string, nonce: string = ""): string => {
-  const value = blake2bHex([str, nonce].join(""));
+  const value = blake2b_256([str, nonce]);
 
   if (value === null) throw FractalError.invalidHashing(str);
 
@@ -23,8 +26,8 @@ const verifySignature = (
 ): boolean =>
   Cardano.verify(
     Buffer.from(message),
-    Buffer.from(expectedSigner),
-    Buffer.from(signature)
+    Buffer.from(expectedSigner, "hex"),
+    Buffer.from(signature, "hex")
   );
 
 const generateCredentialHash = (
@@ -34,14 +37,12 @@ const generateCredentialHash = (
   countryOfIDIssuance: number,
   rootHash: string
 ): Hash =>
-  blake2bHex(
-    [
-      subjectAddress,
-      kycType,
-      countryOfResidence,
-      countryOfIDIssuance,
-      rootHash,
-    ].join("")
-  );
+  blake2b_256([
+    subjectAddress,
+    kycType,
+    countryOfResidence,
+    countryOfIDIssuance,
+    rootHash,
+  ]);
 
 export default BuildProvider(hash, verifySignature, generateCredentialHash);
