@@ -73,7 +73,10 @@ describe("generate a credential", () => {
 
     const signature = signMessage(hashToSign, issuer.keypair);
 
-    credential.setSignature(signature, issuer.publicKey);
+    credential.setSignature(
+      signature.toString("hex"),
+      issuer.publicKey.toString("hex")
+    );
 
     // Run the expectations: the credential must have:
     // 1. Complete integrity
