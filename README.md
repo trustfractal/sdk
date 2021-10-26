@@ -4,8 +4,8 @@
 
 This is the SDK for interacting with Fractal's DID Credentials.
 
-After a user performs KYC with Fractal, that data is taken and a DID credential
-is generated.
+After a user performs KYC with Fractal, that data is processed and a DID
+credential is generated.
 
 ## Table of Contents
 
@@ -31,6 +31,11 @@ approved, our servers will generate a credential. If you have the [Fractal
 Wallet][fractal-wallet] installed, it should automatically sync.
 
 You can find examples of integrating with Fractal DIDs [in our docs][did-docs].
+
+Right now, two types of credentials are supported:
+
+- Ethereum;
+- Cardano.
 
 ### Generating and signing a credential
 
@@ -67,7 +72,10 @@ const properties = {
   wallet_address: address,
 };
 
-const credential = Credential.build(properties, level);
+// Builds an Ethereum credential
+// To build a Cardano credential, ensure the wallet_currency field is ADA
+// and call Credential.Cardano.build
+const credential = Credential.Ethereum.build(properties, level);
 ```
 
 The generate credential has the following format:
@@ -83,6 +91,7 @@ Credential {
   countryOfIDIssuance, // coded tier of the country the user's ID document was issued
   countryOfResidence,  // coded tier of the country the user resides in
   kycType,             // coded KYC level
+  blockchain,          // coded blockchain for the credential
 }
 ```
 
@@ -145,7 +154,7 @@ internally in the following manner:
 import { utils as ethersUtils } from "ethers";
 import { Credential } from "@trustfractal/sdk";
 
-const credential = Credential.build(properties, kycLevel);
+const credential = Credential.Ethereum.build(properties, kycLevel);
 
 // Generate the hash and sign it
 const hashToSign = credential.generateHash();
@@ -286,7 +295,7 @@ use the hash to compute the root hash and validate the integrity of the data
 and, consequently, the Fractal signature, without compromising the data:
 
 ```typescript
-const credential = Credential.build(properties, level);
+const credential = Credential.Ethereum.build(properties, level);
 
 credential.removeProperty("full_name");
 
