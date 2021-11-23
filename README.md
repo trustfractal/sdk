@@ -188,6 +188,17 @@ public generateHash(): Hash {
 Once that signature is generated and set in the credential, you can be confident
 that the data in there is valid.
 
+#### Supported Blockchains
+
+Currently, supported blockchains are:
+
+1. Ethereum - available via `Cardano.Ethereum`.
+2. Cardano - available via `Cardano.Cardano`.
+3. Solana - available via `Cardano.Solana`.
+
+The credential has a special numeric field called `blockchain`, specifying which
+of the three blockchains the credential refers to.
+
 ### Verifying a credential
 
 You can verify if a credential is by calling the `verifyIntegrity` and
