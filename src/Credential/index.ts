@@ -6,6 +6,7 @@ import CountryTiers from "./CountryTiers";
 import KYCTypes from "./KYCTypes";
 import EthereumCredential from "./Ethereum";
 import CardanoCredential from "./Cardano";
+import SolanaCredential from "./Solana";
 
 import {
   Properties,
@@ -35,6 +36,7 @@ export default class Credential implements ICredential {
 
   public static Ethereum = EthereumCredential;
   public static Cardano = CardanoCredential;
+  public static Solana = SolanaCredential;
 
   public static build(
     blockchain: Blockchain,
@@ -118,6 +120,7 @@ export default class Credential implements ICredential {
 
   public setSignature(signature: Signature, signedBy: Address) {
     const hash = this.generateHash();
+
     const validSignature = this.cryptoProvider.verifySignature(
       signature,
       hash,

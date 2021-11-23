@@ -4,6 +4,7 @@ import FractalError from "../FractalError";
 const BlockchainList: Record<string, number> = {
   ethereum: 1,
   cardano: 2,
+  solana: 3,
 };
 
 const fromName = (name: string): Blockchain => {
