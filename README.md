@@ -192,9 +192,9 @@ that the data in there is valid.
 
 Currently, supported blockchains are:
 
-1. Ethereum - available via `Cardano.Ethereum`.
-2. Cardano - available via `Cardano.Cardano`.
-3. Solana - available via `Cardano.Solana`.
+1. Ethereum - available via `Credential.Ethereum`.
+2. Cardano - available via `Credential.Cardano`.
+3. Solana - available via `Credential.Solana`.
 
 The credential has a special numeric field called `blockchain`, specifying which
 of the three blockchains the credential refers to.
