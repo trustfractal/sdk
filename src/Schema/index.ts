@@ -21,6 +21,7 @@ const SupportedSchemas: Record<string, ISchema> = {
   basic: BasicSchema,
   plus: PlusSchema,
   wallet: WalletSchema,
+  "wallet-eth": WalletSchema,
   selfie: SelfieSchema,
   sow: SoWSchema,
   accreditation: AccreditationSchema,
