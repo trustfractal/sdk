@@ -4,6 +4,7 @@ import FractalError from "../FractalError";
 
 const sortKYCType = (type: string): string => type.split("+").sort().join("+");
 
+/* Only append items to this array is possible, the order is important */
 const SupportedKYCs = [
   "plus+liveness+wallet",
   "plus+liveness+wallet+sow",
@@ -13,6 +14,14 @@ const SupportedKYCs = [
   "plus+liveness+accreditation+wallet+sow",
   "plus+selfie+accreditation+wallet",
   "plus+selfie+accreditation+wallet+sow",
+  "plus+liveness+wallet-eth",
+  "plus+liveness+wallet-eth+sow",
+  "plus+selfie+wallet-eth",
+  "plus+selfie+wallet-eth+sow",
+  "plus+liveness+accreditation+wallet-eth",
+  "plus+liveness+accreditation+wallet-eth+sow",
+  "plus+selfie+accreditation+wallet-eth",
+  "plus+selfie+accreditation+wallet-eth+sow",
 ].map(sortKYCType);
 
 const fromLevel = (level: string): KycType => {

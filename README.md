@@ -43,12 +43,20 @@ The credentials are generated for KYCs of one of the following types:
 
 - `plus+liveness+wallet`
 - `plus+liveness+wallet+sow`
+- `plus+liveness+wallet-eth`
+- `plus+liveness+wallet-eth+sow`
 - `plus+selfie+wallet`
 - `plus+selfie+wallet+sow`
+- `plus+selfie+wallet-eth`
+- `plus+selfie+wallet-eth+sow`
 - `plus+liveness+accreditation+wallet`
 - `plus+liveness+accreditation+wallet+sow`
+- `plus+liveness+accreditation+wallet-eth`
+- `plus+liveness+accreditation+wallet-eth+sow`
 - `plus+selfie+accreditation+wallet`
 - `plus+selfie+accreditation+wallet+sow`
+- `plus+selfie+accreditation+wallet-eth`
+- `plus+selfie+accreditation+wallet-eth+sow`
 
 ```typescript
 import { Credential } from "@trustfractal/sdk";
